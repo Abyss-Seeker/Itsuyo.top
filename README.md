@@ -12,7 +12,7 @@
     <br />
     (其实这边itsuyo.top不知道放啥就先把支援卡制作器的readme抄过来了（汗）)
     <br />
-    <a href="itsuyo.top/uma"><strong>前往网址 »</strong></a>
+    <a href="uma"><strong>前往网址 »</strong></a>
     <br />
     <br />
     <a href="https://github.com/Abyss-Seeker/Uma-Card-Maker">看看Demo（还没做）</a>
