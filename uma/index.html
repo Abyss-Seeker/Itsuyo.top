@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "m7r9awlm9v");
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uma Card Maker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="images/random_testing/twinturbochibi.png">
+    <script src="html2canvas.js"></script>
+</head>
+<body>
+
+<!-- 新添加的标题 -->
+<div class="title-container">
+    <div class="left-icon">
+        .<img alt="Mark Icon Green.png" src="https://patchwiki.biligame.com/images/umamusume/thumb/0/05/r44f8abaolv827mf4yqk4hkdzy9xju7.png/16px-Mark_Icon_Green.png" decoding="async" width="24" height="27" srcset="https://patchwiki.biligame.com/images/umamusume/thumb/0/05/r44f8abaolv827mf4yqk4hkdzy9xju7.png/24px-Mark_Icon_Green.png 1.5x, https://patchwiki.biligame.com/images/umamusume/0/05/r44f8abaolv827mf4yqk4hkdzy9xju7.png 2x" data-file-width="32" data-file-height="36">.
+    </div>
+    <div class="center-title">Uma Card Maker</div>
+    <div class="right-icon">
+        .<img alt="Mark Icon Green.png" src="https://patchwiki.biligame.com/images/umamusume/thumb/0/05/r44f8abaolv827mf4yqk4hkdzy9xju7.png/16px-Mark_Icon_Green.png" decoding="async" width="24" height="27" srcset="https://patchwiki.biligame.com/images/umamusume/thumb/0/05/r44f8abaolv827mf4yqk4hkdzy9xju7.png/24px-Mark_Icon_Green.png 1.5x, https://patchwiki.biligame.com/images/umamusume/0/05/r44f8abaolv827mf4yqk4hkdzy9xju7.png 2x" data-file-width="32" data-file-height="36">.
+    </div>
+</div>
+
+
+<div class="sub-header">赛马娘支援卡制作器</div>
+
+<!-- 新添加的 GitHub Logo 链接 -->
+<a href="https://github.com/Abyss-Seeker/Uma-Card-Maker" class="github-link">
+    <img src="images/github.png" alt="GitHub Logo">
+</a>
+
+<div class="container">
+    <div class="card-preview">
+        <div class="border-container">
+            <div class="canvas-overlay">
+                <canvas id="cardCanvas" width="348" height="477"></canvas>
+            </div>
+            <div class="border-overlay">
+                <img src="images/card_borders/SSR.png" alt="Border" width="384" height="512">
+                <div class="tag">
+                    <img src="images/card_tag/SSR.png" alt="Tag" width="85" height="85">
+                </div>
+                <div class="type">
+                    <img src="images/card_type/速度.png" alt="Type" width="75" height="75">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="uploadButton" class="button">图片选择</button>
+        <div class="control-label">图片缩放</div>
+        <div class="scale-controls">
+            <button class="button">-</button>
+            <input class="scale-input" type="number" step="0.01" value="100.00">
+            <button class="button">+</button>
+        </div>
+        <button id="flipButton" class="button">图片翻转</button>
+        <div class="control-label">支援卡属性</div>
+        <select class="input-field" id="attributeSelect">
+            <option value="速度">速度</option>
+            <option value="耐力">耐力</option>
+            <option value="力量">力量</option>
+            <option value="毅力">毅力</option>
+            <option value="智力">智力</option>
+            <option value="友人">友人</option>
+            <option value="团队">团队</option>
+        </select>
+        <div class="control-label">支援卡品级</div>
+        <select class="input-field" id="gradeSelect">
+            <option value="SSR">SSR</option>
+            <option value="SR">SR</option>
+            <option value="R">R</option>
+        </select>
+        <button id="saveButton" class="button">下载支援卡</button>
+    </div>
+</div>
+
+<div class="help-button">
+    <button id="helpButton">?</button>
+    <!-- 修改后的帮助内容弹窗 -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>使用指南</h2>
+            <p>
+                欢迎使用 赛马娘支援卡制作器 (Uma Card Maker) 喵~基本的功能如下：
+                <ul>
+                    <li>可以上传图片并在支持卡上进行缩放、拖动、翻转等操作。</li>
+                    <li>可以选择支持卡的属性和品级，以及预览最终效果。</li>
+                    <li>右上角的是github repo链接哦~</li>
+                </ul>
+            </p>
+            <h3>使用指南：</h3>
+            <ol>
+                <li><strong>上传图片：</strong>点击 "图片选择" 按钮，选择你想要制作的支持卡的图片。支持的图片格式包括 JPG、PNG 等。</li>
+                <li><strong>编辑支持卡：</strong>图片上传后，你可以在支持卡上进行缩放、拖动、翻转等操作。</li>
+                <li><strong>选择支持卡属性和品级：</strong>使用下拉菜单选择支持卡的属性（速度、耐力、力量、毅力、智力、友人、团队）和品级（SSR、SR、R）。</li>
+                <li><strong>预览和下载：</strong>在编辑完成后，你可以预览支持卡的最终效果，并点击 "下载支援卡" 按钮将支持卡保存到你的设备上。</li>
+                <li><strong>GitHub 仓库链接：</strong>点击页面右上角的 GitHub 图标，访问应用程序的 GitHub 仓库，查看源代码并提出建议或报告问题。</li>
+                <li><strong>需要帮助？：</strong>如果有什么bug的话，欢迎在github issues部分里面告诉我！</li>
+            </ol>
+            <div style="text-align: right;">
+                <a href="https://github.com/Abyss-Seeker" target="_blank">- Abyss Seeker</a>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+
+<script src="script.js"></script>
+</body>
+</html>
