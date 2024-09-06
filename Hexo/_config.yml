@@ -103,5 +103,5 @@ theme: arknights
 deploy:
   type: git
   repo: https://github.com/Abyss-Seeker/Itsuyo.top.git
-  branch: main
+  branch: gh-pages
   message: deploy github pages
