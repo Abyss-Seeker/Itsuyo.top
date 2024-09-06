@@ -34,7 +34,7 @@ code.paintMermaid();
  owner: 'Abyss-Seeker',
  admin: ['Abyss-Seeker'],
  distractionFreeMode: false,
- id: location.pathname
+ id: location.pathname.slice(0, 50)
 });
 if (document.querySelector("#gitalk")) gitalk.render("gitalk");document.querySelector('.lg-container')?.remove()
 lightGallery(document.getElementById('post-bg'), {
@@ -63,7 +63,7 @@ document.addEventListener("pjax:complete", reset);document.addEventListener('pja
  owner: 'Abyss-Seeker',
  admin: ['Abyss-Seeker'],
  distractionFreeMode: false,
- id: location.pathname
+ id: location.pathname.slice(0, 50)
 });
 if (document.querySelector("#gitalk")) gitalk.render("gitalk");document.querySelector('.lg-container')?.remove()
 lightGallery(document.getElementById('post-bg'), {
