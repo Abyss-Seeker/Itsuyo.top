@@ -59,8 +59,8 @@ body {
 
 #cardCanvas {
     position: absolute;
-    top: 13px; /* 调整以适应边框内 */
-    left: 18px; /* 调整以适应边框内 */
+    top: 12px; /* 调整以适应边框内 */
+    left: 17px; /* 调整以适应边框内 */
 }
 
 .canvas-overlay {
