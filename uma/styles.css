@@ -1,0 +1,366 @@
+/* styles.css */
+
+.alert-box {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(255, 0, 0, 0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    z-index: 9999;
+    opacity: 0; /* 初始设置为透明 */
+    transition: opacity 0.5s ease; /* 添加过渡效果 */
+}
+
+.alert-box.success {
+    background-color: rgba(0, 255, 0, 0.8); /* 成功时的背景颜色 */
+}
+
+.alert-box.show {
+    opacity: 1; /* 显示时设置为不透明 */
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f0f0f0;
+}
+
+.container {
+    display: flex;
+    justify-content: space-between;
+    width: 90%; /* 设置容器宽度 */
+    max-width: 960px; /* 设置最大宽度 */
+    margin-top: 20px; /* 添加顶部间距 */
+}
+
+.card-preview {
+    width: 60%; /* 设置预览框宽度 */
+    height: 512px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.border-container {
+    position: relative;
+    display: inline-block;
+}
+
+.border-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#cardCanvas {
+    position: absolute;
+    top: 13px; /* 调整以适应边框内 */
+    left: 18px; /* 调整以适应边框内 */
+}
+
+.canvas-overlay {
+    position: absolute;
+    display: table;
+}
+
+.border-overlay {
+    position: relative;
+    pointer-events: none; /* 允许鼠标事件穿透 */
+    user-select: none; /* 禁止文本选中 */
+    -webkit-user-drag: none; /* 禁止拖拽 */
+    display: inline-block;
+}
+
+.tag, .type {
+    position: absolute;
+}
+
+.tag {
+    top: 2px;
+    left: 35px;
+}
+
+.type {
+    top: 1.5px;
+    left: 298px;
+}
+
+.controls {
+    width: 35%; /* 设置控制框宽度 */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.control-label {
+    font-weight: bold;
+}
+
+.input-field {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* 添加按钮悬停/点击效果 */
+.button:hover,
+.button:active {
+    background-color: #0056b3; /* 悬停/点击状态时的背景颜色 */
+    transition: background-color 0.3s ease; /* 添加渐变效果 */
+}
+
+.github-link img {
+    transition: filter 0.3s ease; /* 添加渐变效果 */
+}
+
+.github-link:hover img,
+.github-link:active img {
+    filter: invert(100%); /* 悬停/点击状态时反转颜色 */
+}
+
+.scale-label {
+    display: inline-block;
+}
+
+.scale-controls {
+    display: flex; /* 修改为flex布局 */
+    align-items: center; /* 垂直居中对齐 */
+}
+
+.scale-controls .button {
+    margin: 0 5px; /* 添加按钮之间的间距 */
+}
+
+/* 新添加的 CSS 样式 */
+.header {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.sub-header {
+    text-align: center;
+    font-size: 14px;
+    color: #888;
+}
+
+.github-link {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.github-link img {
+    width: 40px;
+    height: 40px;
+}
+
+/* 在你的 styles.css 文件中添加以下样式 */
+
+.modal {
+    display: none; /* 默认隐藏 */
+    position: fixed; /* 固定定位 */
+    z-index: 1; /* 设置 z-index，确保弹窗位于其他元素之上 */
+    left: 0;
+    top: 0;
+    width: 100%; /* 设置宽度为屏幕宽度 */
+    height: 100%; /* 设置高度为屏幕高度 */
+    overflow: auto; /* 添加滚动条，以防内容过长 */
+    background-color: rgba(0, 0, 0, 0.4); /* 半透明黑色背景 */
+}
+
+.modal-content {
+    background-color: #fefefe; /* 弹窗内容背景色 */
+    margin: 15% auto; /* 调整上下居中位置 */
+    padding: 20px;
+    border: 1px solid #888;
+    transform: translate(0%, 0%);
+    width: 70%; /* 设置弹窗内容宽度 */
+    max-width: 600px; /* 设置最大宽度 */
+    border-radius: 10px; /* 圆角边框 */
+}
+
+/* 关闭按钮样式 */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+/* 问号按钮样式 */
+.help-button {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+}
+
+.help-button button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* 添加按钮悬停/点击效果 */
+.help-button button:hover,
+.help-button button:active {
+    background-color: #0056b3; /* 悬停/点击状态时的背景颜色 */
+    transition: background-color 0.3s ease; /* 添加渐变效果 */
+}
+
+/* 帮助内容弹窗样式 */
+.modal-content {
+    max-height: 80%;
+    overflow-y: auto;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+}
+
+.modal-content h3 {
+    margin-top: 20px;
+}
+
+.modal-content ul,
+.modal-content ol {
+    margin-bottom: 20px;
+}
+
+/* 在样式表中添加媒体查询以适配手机端 */
+@media only screen and (max-width: 600px) {
+    /* 调整全局样式 */
+    .container {
+        flex-direction: column;
+    }
+
+    .card-preview {
+        width: 100%; /* 将预览框宽度调整为100% */
+        height: auto; /* 自适应高度 */
+    }
+
+    .controls {
+        width: 100%; /* 将控制框宽度调整为100% */
+    }
+
+    /* 调整按钮样式 */
+    .button {
+        width: 100%; /* 将按钮宽度调整为100% */
+    }
+
+    /* 调整预览框和控制框之间的间距 */
+    .container {
+        margin-top: 10px; /* 减小顶部间距 */
+        margin-bottom: 10px; /* 增加底部间距 */
+    }
+
+    /* 调整帮助按钮样式 */
+    .help-button {
+        bottom: 70px; /* 调整按钮位置 */
+        left: calc(50% - 50px); /* 居中显示按钮 */
+    }
+
+    .help-button button {
+        width: 60px; /* 调整按钮大小 */
+        height: 60px;
+        font-size: 24px; /* 调整按钮文字大小 */
+    }
+
+    /* 调整帮助内容弹窗样式 */
+    .modal-content {
+        margin: 10% auto; /* 调整上下居中位置 */
+        width: 90%; /* 调整弹窗内容宽度 */
+    }
+
+    .modal-content h2,
+    .modal-content h3,
+    .modal-content p {
+        font-size: 14px; /* 调整字体大小 */
+    }
+    /* 调整标题和旁边图片的大小 */
+    div[style="text-align: center;color: #62b912;font-size: 38px;font-weight: 600;"] {
+        text-align: center;
+        margin-top: 10px; /* 缩小标题顶部间距 */
+        font-size: 24px; /* 缩小标题字体大小 */
+        font-weight: 600;
+    }
+
+    div[style="text-align: center;color: #62b912;font-size: 38px;font-weight: 600;"] img {
+        width: 30px; /* 缩小旁边图片大小 */
+        height: 30px;
+    }
+
+    /* 调整帮助按钮样式 */
+    .help-button {
+        position: fixed; /* 保持在屏幕上 */
+        bottom: 20px; /* 将按钮放在底部 */
+        left: 20px; /* 将按钮放在左侧 */
+    }
+
+    .help-button button {
+        width: 40px; /* 缩小按钮大小 */
+        height: 40px;
+        font-size: 16px; /* 缩小按钮文字大小 */
+    }
+}
+
+/* 新增的 CSS 样式 */
+
+/* 使用弹性布局使标题和图片水平居中 */
+.title-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; /* 隐藏溢出内容 */
+    text-align: center;
+    color: #62b912;
+    font-size: 38px;
+    font-weight: 600;
+}
+
+/* 限制标题和图片的最大宽度 */
+.title-container h1,
+.title-container img {
+    max-width: 100%;
+}
+
+/* 在小屏幕下（例如移动端）缩小标题字体大小 */
+@media screen and (max-width: 600px) {
+    .title-container {
+        font-size: 20px; /* 将字体大小调整为20像素 */
+    }
+    .left-icon,
+    .right-icon {
+        transform: scale(0.6); /* 缩小图标到原大小的 45% */
+    }
+}
