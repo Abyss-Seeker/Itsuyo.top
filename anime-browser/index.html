@@ -1,213 +1,622 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<style>
-    /* 新增返回按钮样式 */
-    .home-link {
-        position: fixed;
-        left: 20px;
-        top: 20px;
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-        color: #333;
-        font-size: 16px;
-        z-index: 1000;
-        transition: opacity 0.3s;
-        background: rgba(255, 255, 255, 0.9);
-        padding: 8px;
-        border-radius: 4px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .home-link img {
-        width: 24px;
-        height: 24px;
-        margin-right: 8px;
-    }
-
-    .home-link:hover {
-        opacity: 0.8;
-        text-decoration: underline;
-    }
-
-    /* 调整容器位置 */
-    .container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding-top: 70px;  /* 新增顶部间距 */
-    }
-
-    /* 移动端适配 */
-    @media (max-width: 768px) {
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动漫信息查询-2.0</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+            /* 新增返回按钮样式 */
         .home-link {
-            left: 10px;
-            top: 10px;
-            font-size: 14px;
-            padding: 6px;
+            position: fixed;
+            left: 20px;
+            top: 20px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: white; /* 白色文字在深色背景上更显眼 */
+            font-size: 16px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            background: rgba(138, 43, 226, 0.8); /* 使用主题紫色 */
+            padding: 8px 15px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            font-weight: 500;
         }
 
         .home-link img {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+        }
+
+        .home-link:hover {
+            background: rgba(106, 28, 185, 0.9); /* 深紫色悬停效果 */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        /* 调整容器位置，避免按钮遮挡 */
+        .container {
+            padding-top: 70px; /* 新增顶部间距 */
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .home-link {
+                left: 10px;
+                top: 10px;
+                font-size: 14px;
+                padding: 6px 12px;
+            }
+
+            .home-link img {
+                width: 20px;
+                height: 20px;
+            }
+
+            .container {
+                padding-top: 60px; /* 移动端减少间距 */
+            }
+        }
+
+        /* 确保模态框不会覆盖按钮 */
+        .modal {
+            z-index: 999; /* 低于按钮的z-index */
+        }
+
+        /* 样式保持不变 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #8a2be2;
+            --primary-dark: #6a1cb9;
+            --secondary: #ff6b6b;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --success: #28a745;
+            --card-bg: #ffffff;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
         }
 
         .container {
-            padding-top: 60px;  /* 移动端减少间距 */
-            margin: 0 10px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
-    }
 
-    /* 确保模态框不会覆盖按钮 */
-    .modal {
-        z-index: 999;  /* 低于按钮的z-index */
-    }
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            color: white;
+            animation: fadeInDown 0.8s ease;
+        }
 
-    body {
-        font-family: Arial, sans-serif;
-        margin: 20px;
-        background-color: #f5f5f5;
-    }
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #8a2be2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
 
-    .container {
-        max-width: 800px;
-        margin: 0 auto;
-    }
+        header p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            color: #e0e0ff;
+        }
 
-    .input-area {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
-    }
+        .search-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.8s ease;
+        }
 
-    input, select, button {
-        padding: 8px;
-        font-size: 14px;
-    }
+        .input-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
 
-    button {
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        cursor: pointer;
-    }
+        .input-group {
+            flex: 1;
+            min-width: 250px;
+        }
 
-    .scroll-area {
-        max-height: 600px;
-        overflow-y: auto;
-        border: 1px solid #ddd;
-        padding: 10px;
-        background-color: white;
-    }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
 
-    .anime-frame {
-        background-color: #f0f0f0;
-        border: 1px solid #dcdcdc;
-        border-radius: 5px;
-        padding: 10px;
-        margin-bottom: 10px;
-        cursor: pointer;
-        display: flex;
-        gap: 15px;
-    }
+        input, select, button {
+            padding: 14px 18px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
 
-    .anime-frame:hover {
-        background-color: #e0e0e0;
-        border-color: #a0a0a0;
-    }
+        input:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.2);
+        }
 
-    .loading-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.8);
-        display: none;
-        justify-content: center;
-        align-items: center;
-        z-index: 999;
-    }
+        button {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
+        }
 
-    .modal {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 20px;
-        border-radius: 5px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.3);
-        max-width: 600px;
-        max-height: 80vh;
-        overflow-y: auto;
-    }
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.4);
+        }
 
-    .episode-list {
-        margin-top: 10px;
-        border-top: 1px solid #ddd;
-        padding-top: 10px;
-    }
+        button:active {
+            transform: translateY(-1px);
+        }
 
-    .episode-scroll-area {
-        max-height: 300px;
-        overflow-y: auto;
-        margin-top: 10px;
-    }
+        .results-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
 
-    .episode-frame {
-        background-color: #f0f0f0;
-        border: 1px solid #dcdcdc;
-        border-radius: 5px;
-        padding: 10px;
-        margin-bottom: 8px;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
+        .anime-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            animation: fadeIn 0.5s ease;
+        }
 
-    .episode-frame:hover {
-        background-color: #e0e0e0;
-        border-color: #a0a0a0;
-        transform: translateX(5px);
-    }
-</style>
-<head>
-    <meta charset="UTF-8">
-    <title>动漫信息查询</title>
+        .anime-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .anime-image {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .anime-info {
+            padding: 20px;
+        }
+
+        .anime-info h3 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .anime-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .anime-meta span {
+            background: #f0f0f0;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .anime-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+
+        .anime-stats div {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .anime-stats i {
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1200;
+            flex-direction: column;
+            color: white;
+            display: none;
+        }
+
+        .spinner {
+            width: 70px;
+            height: 70px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            z-index: 1001;
+            display: none;
+            animation: modalIn 0.4s ease;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.8rem;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-content {
+            padding: 25px;
+            overflow-y: auto;
+            max-height: 65vh;
+        }
+
+        .anime-detail {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .detail-image {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .detail-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .detail-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .meta-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .meta-item strong {
+            display: block;
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .episode-list {
+            margin-top: 20px;
+        }
+
+        .episode-list h4 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            color: var(--dark);
+        }
+
+        .episodes {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
+        }
+
+        .episode {
+            background: #f0f0f0;
+            padding: 12px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .episode:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 25px; /* 增加左右内边距 */
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            grid-column: 1 / -1; /* 关键修改：使空状态跨越所有列 */
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            color: var(--gray);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 1002;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: translate(-50%, -60%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        @media (max-width: 768px) {
+            .anime-detail {
+                grid-template-columns: 1fr;
+            }
+
+            .input-area {
+                flex-direction: column;
+            }
+
+            .input-group {
+                width: 100%;
+            }
+
+            header h1 {
+                font-size: 2.2rem;
+            }
+
+            .modal {
+                width: 95%;
+            }
+        }
+    </style>
 </head>
 <body>
     <a href="https://itsuyo.top" class="home-link" class='item-img' data-src='https://itsuyo.top/favicon.ico'><img src="https://itsuyo.top/favicon.ico" alt="主站图标">
         <span>返回主站</span>
     </a>
     <div class="container">
-        <div class="input-area">
-            <input type="text" id="animeName" placeholder="输入动漫名称">
-            <select id="lineType">
-                <option>线路 1</option>
-                <option>线路 2</option>
-                <option>线路 3</option>
-            </select>
-            <button onclick="fetchAnimeData()">查询</button>
-        </div>
-        <div class="scroll-area" id="resultsArea"></div>
+        <header>
+            <h1><i class="fas fa-dragon"></i> 动漫信息查询</h1>
+            <p>搜索您喜爱的动漫，获取详细信息、剧集列表和播放链接</p>
+        </header>
+
+        <section class="search-section">
+            <div class="input-area">
+                <div class="input-group">
+                    <label for="animeName"><i class="fas fa-search"></i> 动漫名称</label>
+                    <input type="text" id="animeName" placeholder="输入动漫名称，例如：赛马娘">
+                </div>
+
+                <div class="input-group">
+                    <label for="lineType"><i class="fas fa-satellite-dish"></i> 选择线路</label>
+                    <select id="lineType">
+                        <option value="1">线路 1</option>
+                        <option value="2">线路 2</option>
+                        <option value="3">线路 3</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>&nbsp;</label>
+                    <button onclick="fetchAnimeData()">
+                        <i class="fas fa-search"></i> 查询动漫
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="results-section" id="resultsArea">
+            <div class="empty-state">
+                <i class="fas fa-tv"></i>
+                <h3>动漫查询工具</h3>
+                <p>在搜索框中输入您想查询的动漫名称，选择线路后点击查询按钮</p>
+                <p>搜索结果将显示在这里，点击动漫卡片可查看详情和剧集列表</p>
+                <p><b>如果报错了的话，先多试几次（推荐5次，很看API心情）~！</b>有的时候多点几次就又可以了</p>
+                <p style="margin-top: 20px; color: #ff6b6b; font-weight: 500;">
+                    <i class="fas fa-exclamation-circle"></i> 提示：每次点击按钮和其他操作，点一次就够了！不要狂点！
+                </p>
+            </div>
+        </section>
     </div>
 
     <div class="loading-overlay" id="loading">
-        <div class="loading-content">正在加载，请稍候...</div>
+        <div class="spinner"></div>
+        <h2 id="loading-text"><a href="#loading-text" class="headerlink" title="loading-text"></a>正在加载，请稍候...</h2>
+    </div>
+
+    <div class="modal" id="detailModal">
+        <div class="modal-header">
+            <h2 id="modal-title"><a href="#modal-title" class="headerlink" title="modal-title"></a>动漫详情</h2>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-content" id="modal-content">
+            <!-- 详情内容将通过JavaScript动态填充 -->
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-text">操作成功！</span>
     </div>
 
     <script>
+        // 当前状态变量
         let currentLoading = null;
         let currentAnimeName = '';
         let currentLineType = 1;
         let currentNIndex = 0;
 
-        function showLoading(text = '正在加载...') {
+        // 显示通知
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notification-text');
+
+            text.textContent = message;
+            notification.style.background = isError ? '#ff6b6b' : '#8a2be2';
+
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 显示加载状态
+        function showLoading(text = '正在加载，请稍候...') {
             const loading = document.getElementById('loading');
-            loading.querySelector('.loading-content').textContent = text;
+            const loadingText = document.getElementById('loading-text');
+
+            loadingText.textContent = text;
             loading.style.display = 'flex';
             currentLoading = loading;
         }
 
+        // 隐藏加载状态
         function hideLoading() {
             if (currentLoading) {
                 currentLoading.style.display = 'none';
@@ -215,163 +624,324 @@
             }
         }
 
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        // 获取动漫数据 - 修复版
         async function fetchAnimeData() {
             const animeName = document.getElementById('animeName').value.trim();
             if (!animeName) {
-                alert('请输入动漫名称');
+                showNotification('请输入动漫名称', true);
                 return;
             }
 
             currentAnimeName = animeName;
-            currentLineType = document.getElementById('lineType').selectedIndex + 1;
+            currentLineType = document.getElementById('lineType').value;
 
-            showLoading();
+            showLoading('正在搜索动漫...');
 
             try {
-                const response = await fetch(
-                    `https://oiapi.net/API/Anime?msg=${encodeURIComponent(animeName)}&n=0&j=0&type=${currentLineType}`
-                );
-                const data = await response.json();
+                const url = 'https://oiapi.net/API/Anime';
+                const params = new URLSearchParams({
+                    msg: animeName,
+                    n: 0,
+                    j: 0,
+                    type: currentLineType
+                });
+
+                // 添加时间戳防止缓存
+                const fullUrl = `${url}?${params}&t=${Date.now()}`;
+
+                // 使用CORS代理解决跨域问题
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(fullUrl)}`;
+
+                const response = await fetch(proxyUrl);
+
+                // 解析代理响应
+                const proxyData = await response.json();
+
+                // 检查代理响应是否包含原始内容
+                if (!proxyData.contents) {
+                    throw new Error('代理服务返回无效数据');
+                }
+
+                // 解析原始API响应
+                const data = JSON.parse(proxyData.contents);
+
+                // 新增：打印搜索结果的完整JSON数据
+                console.log("[搜索动漫列表] 返回的完整JSON数据:", data);
 
                 if (data.code === 200) {
                     displayAnimeList(data.data);
+                    showNotification(`找到 ${data.data.length} 部相关动漫`);
                 } else {
-                    alert(data.msg || '查询失败');
+                    showNotification(data.msg || '查询失败，请重试', true);
                 }
             } catch (error) {
-                alert(`请求异常: ${error}`);
+                console.error('请求异常:', error);
+                showNotification(`请求异常: ${error.message}`, true);
             } finally {
                 hideLoading();
             }
         }
 
+        // 显示动漫列表
         function displayAnimeList(animeList) {
             const resultsArea = document.getElementById('resultsArea');
             resultsArea.innerHTML = '';
 
             if (!animeList || animeList.length === 0) {
-                resultsArea.innerHTML = '<div>未找到相关动漫</div>';
+                resultsArea.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>未找到相关动漫</h3>
+                        <p>没有找到与"${currentAnimeName}"相关的动漫，请尝试其他关键词</p>
+                    </div>
+                `;
                 return;
             }
 
             animeList.forEach((anime, index) => {
-                const animeFrame = document.createElement('div');
-                animeFrame.className = 'anime-frame';
-                animeFrame.innerHTML = `
-                    <img src="${anime.image}" style="width: 100px; height: 150px; object-fit: cover;">
-                    <div>
+                const animeCard = document.createElement('div');
+                animeCard.className = 'anime-card';
+                animeCard.innerHTML = `
+                    <img src="${anime.image}" alt="${anime.name}" class="anime-image" onerror="this.src='https://via.placeholder.com/280x320?text=图片加载失败'">
+                    <div class="anime-info">
                         <h3>${anime.name}</h3>
-                        <p>年份: ${anime.year}</p>
-                        <p>状态: ${anime.ji}</p>
+                        <div class="anime-meta">
+                            <span>${anime.year || '未知年份'}</span>
+                            <span>${anime.ji || '状态未知'}</span>
+                        </div>
+                    <!-- 修改动漫卡片中的统计信息部分 -->
+<!--                    <div class="anime-stats">-->
+<!--                        <div><i class="fas fa-star"></i> 评分: ${anime.rating || anime.score || '暂无'}</div>-->
+<!--                        <div><i class="fas fa-tags"></i> ${anime.genre?.[0] || anime.class || '未分类'}</div>-->
+<!--                        <div><i class="fas fa-flag"></i> ${anime.country?.[0] || '未知'}</div>-->
+<!--                        <div><i class="fas fa-play-circle"></i> ${anime.episodes?.length || anime.ji_num || '0'}集</div>-->
+<!--                    </div>-->
                     </div>
                 `;
-                animeFrame.onclick = () => showAnimeDetails(index + 1);
-                resultsArea.appendChild(animeFrame);
+                animeCard.onclick = () => showAnimeDetails(index + 1);
+                resultsArea.appendChild(animeCard);
             });
         }
 
+        // 显示动漫详情
         async function showAnimeDetails(nIndex) {
             currentNIndex = nIndex;
             showLoading('正在加载动漫详情...');
 
             try {
-                const response = await fetch(
-                    `https://oiapi.net/API/Anime?msg=${encodeURIComponent(currentAnimeName)}&n=${nIndex}&j=0&type=${currentLineType}`
-                );
-                const data = await response.json();
+                const url = 'https://oiapi.net/API/Anime';
+                const params = new URLSearchParams({
+                    msg: currentAnimeName,
+                    n: nIndex,
+                    j: 0,
+                    type: currentLineType
+                });
+
+                // 添加时间戳防止缓存
+                const fullUrl = `${url}?${params}&t=${Date.now()}`;
+
+                // 使用CORS代理解决跨域问题
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(fullUrl)}`;
+
+                const response = await fetch(proxyUrl);
+
+                // 解析代理响应
+                const proxyData = await response.json();
+
+                // 检查代理响应是否包含原始内容
+                if (!proxyData.contents) {
+                    throw new Error('代理服务返回无效数据');
+                }
+
+                // 解析原始API响应
+                const data = JSON.parse(proxyData.contents);
+
+                // 新增：打印动漫详情的完整JSON数据
+                console.log(`[动漫详情] ${currentAnimeName} 的完整JSON数据:`, data);
 
                 if (data.code === 200) {
                     openAnimeDetailWindow(data.data, nIndex);
                 } else {
-                    alert(data.msg || '获取详情失败');
+                    showNotification(data.msg || '获取详情失败', true);
                 }
             } catch (error) {
-                alert(`请求异常: ${error}`);
+                console.error('请求异常:', error);
+                showNotification(`请求异常: ${error.message}`, true);
             } finally {
                 hideLoading();
             }
         }
 
+        // 打开动漫详情窗口
         function openAnimeDetailWindow(animeData, nIndex) {
-            const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.innerHTML = `
-                <h2>${animeData.name}</h2 class='item-img' data-src='${animeData.image}'><img src="${animeData.image}" style="max-width: 200px; margin: 10px 0;">
-                <p>类别: ${animeData.class}</p>
-                <p>标签: ${animeData.tags}</p>
-                <p>状态: ${animeData.ji}</p>
-                <p>年份: ${animeData.year}</p>
-                <p>国家: ${animeData.country}</p>
-                <p>简介: ${animeData.desc}</p>
+            const modal = document.getElementById('detailModal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalContent = document.getElementById('modal-content');
+
+            modalTitle.textContent = animeData.name;
+
+            modalContent.innerHTML = `
+                <div class="anime-detail">
+                    <div class='item-img' data-src='${animeData.image}'><img src="${animeData.image}" alt="${animeData.name}" class="detail-image" onerror="this.src='https://via.placeholder.com/300x400?text=图片加载失败'">
+                    </div>
+                    <div class="detail-info">
+                        <h3>${animeData.name}</h3>
+                        <div class="detail-meta">
+                            <div class="meta-item">
+                                <strong>类别</strong>
+                                <div>${animeData.class || '未分类'}</div>
+                            </div>
+                            <div class="meta-item">
+                                <strong>标签</strong>
+                                <div>${animeData.tags || '无'}</div>
+                            </div>
+                            <div class="meta-item">
+                                <strong>状态</strong>
+                                <div>${animeData.ji || '未知'}</div>
+                            </div>
+                            <div class="meta-item">
+                                <strong>年份</strong>
+                                <div>${animeData.year || '未知'}</div>
+                            </div>
+                            <div class="meta-item">
+                                <strong>国家</strong>
+                                <div>${animeData.country || '未知'}</div>
+                            </div>
+                            <div class="meta-item">
+                                <strong>评分</strong>
+                                <div>${animeData.score || '暂无'}</div>
+                            </div>
+                        </div>
+                        <div class="meta-item" style="grid-column: 1 / -1;">
+                            <strong>简介</strong>
+                            <div>${animeData.desc || '暂无简介'}</div>
+                        </div>
+                    </div>
+                </div>
                 <div class="episode-list">
-                    <h4>集数列表:</h4>
-                    <div class="episode-scroll-area" id="episodeList"></div>
+                    <h4><i class="fas fa-list"></i> 剧集列表</h4>
+                    <div class="episodes" id="episodeList"></div>
                 </div>
             `;
 
-            const episodeList = modal.querySelector('#episodeList');
+            const episodeList = document.getElementById('episodeList');
             animeData.playlist.forEach((ep, idx) => {
-                const episodeFrame = document.createElement('div');
-                episodeFrame.className = 'episode-frame';
-                episodeFrame.innerHTML = `
-                    <span>第 ${idx + 1} 集</span>
-                    <div style="color: #666; font-size: 0.9em;">${ep}</div>
-                `;
-                episodeFrame.onclick = () => handleEpisodeClick(nIndex, idx + 1);
-                episodeList.appendChild(episodeFrame);
+                const episode = document.createElement('div');
+                episode.className = 'episode';
+                episode.textContent = ep;
+                episode.onclick = () => handleEpisodeClick(nIndex, idx + 1);
+                episodeList.appendChild(episode);
             });
 
-            const closeBtn = document.createElement('button');
-            closeBtn.textContent = '关闭';
-            closeBtn.onclick = () => modal.remove();
-            modal.appendChild(closeBtn);
-
-            document.body.appendChild(modal);
+            modal.style.display = 'block';
         }
 
+        // 处理剧集点击
         async function handleEpisodeClick(nIndex, episodeIndex) {
-            showLoading('正在加载视频信息...');
+            showLoading('正在获取播放链接...');
 
             try {
-                const response = await fetch(
-                    `https://oiapi.net/API/Anime?msg=${encodeURIComponent(currentAnimeName)}&n=${nIndex}&j=${episodeIndex}&type=${currentLineType}`
-                );
-                const data = await response.json();
+                const url = 'https://oiapi.net/API/Anime';
+                const params = new URLSearchParams({
+                    msg: currentAnimeName,
+                    n: nIndex,
+                    j: episodeIndex,
+                    type: currentLineType
+                });
+
+                // 添加时间戳防止缓存
+                const fullUrl = `${url}?${params}&t=${Date.now()}`;
+
+                // 使用CORS代理解决跨域问题
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(fullUrl)}`;
+
+                const response = await fetch(proxyUrl);
+
+                // 解析代理响应
+                const proxyData = await response.json();
+
+                // 检查代理响应是否包含原始内容
+                if (!proxyData.contents) {
+                    throw new Error('代理服务返回无效数据');
+                }
+
+                // 解析原始API响应
+                const data = JSON.parse(proxyData.contents);
+
+                // 新增：打印剧集播放链接的完整JSON数据
+                console.log(`[剧集播放链接] ${currentAnimeName} 第${episodeIndex}集的完整JSON数据:`, data);
 
                 if (data.code === 200) {
                     showEpisodeDetails(data.data);
                 } else {
-                    alert(data.msg || '获取播放链接失败');
+                    showNotification(data.msg || '获取播放链接失败', true);
                 }
             } catch (error) {
-                alert(`请求异常: ${error}`);
+                console.error('请求异常:', error);
+                showNotification(`请求异常: ${error.message}`, true);
             } finally {
                 hideLoading();
             }
         }
 
+        // 显示剧集详情
         function showEpisodeDetails(episodeData) {
-            const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.innerHTML = `
-                <h3>${episodeData.name} - ${episodeData.play_num}</h3>
-                <p>视频类型: ${episodeData.video_type}</p>
-                ${episodeData.play_url ?
-                    `<a href="${episodeData.play_url}" target="_blank">点击播放（外部链接）</a>` :
-                    '<p>暂无播放链接</p>'}
-                <button onclick="this.parentElement.remove()">关闭</button>
+            const modal = document.getElementById('detailModal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalContent = document.getElementById('modal-content');
+
+            modalTitle.textContent = `${episodeData.name} - ${episodeData.play_num}`;
+
+            modalContent.innerHTML = `
+                <div style="text-align: center; padding: 30px 0;">
+                    <h3 style="margin-bottom: 20px;">${episodeData.name} - ${episodeData.play_num}</h3>
+                    <p style="margin-bottom: 25px; font-size: 1.1rem;">
+                        <i class="fas fa-info-circle"></i> 视频类型: ${episodeData.video_type || '未知'}
+                    </p>
+
+                    ${episodeData.play_url ? `
+                        <a href="${episodeData.play_url}" target="_blank"
+                           style="display: inline-block; background: linear-gradient(135deg, #8a2be2, #6a1cb9);
+                                  color: white; padding: 15px 35px; border-radius: 50px;
+                                  text-decoration: none; font-weight: 600; font-size: 1.1rem;
+                                  box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+                                  transition: all 0.3s ease;">
+                            <i class="fas fa-play-circle"></i> 点击播放
+                        </a>
+                        <p style="margin-top: 20px; color: #666;">
+                            如果播放页面没有自动打开，请检查浏览器是否阻止了弹出窗口
+                        </p>
+                    ` : `
+                        <div style="background: #ffebee; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                            <i class="fas fa-exclamation-triangle" style="color: #f44336; font-size: 2rem; margin-bottom: 15px;"></i>
+                            <h4>暂无播放链接</h4>
+                            <p>当前剧集暂时没有可用的播放链接，请尝试其他剧集或线路</p>
+                        </div>
+                    `}
+                </div>
             `;
-            document.body.appendChild(modal);
+
+            modal.style.display = 'block';
+
+            // 如果有播放链接，自动在新标签页打开
+            if (episodeData.play_url) {
+                setTimeout(() => {
+                    window.open(episodeData.play_url, '_blank');
+                }, 500);
+            }
         }
 
-        // 初始化默认提示
-        document.getElementById('resultsArea').innerHTML = `
-            <div style="text-align: center; color: #666; font-size: 18px; margin-top: 50px;">
-                点击右上角‘查询’按钮搜索，可能要一会<br>
-                如果太久（超过1分钟）还没加载出来那可能是网络炸了或者你得把搜索的关键词写得详细点<br>
-                每次点按钮和其他东西，点一次就够了！不要狂点！
-            </div>
-        `;
+        // 初始化：为输入框添加回车键支持
+        document.getElementById('animeName').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                fetchAnimeData();
+            }
+        });
     </script>
 </body>
 </html>
