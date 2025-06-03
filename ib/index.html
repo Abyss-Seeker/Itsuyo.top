@@ -278,7 +278,7 @@ document.addEventListener("pjax:complete", reset);reset()})</script><meta name="
         <p>愿努力与坚持，在考场上绽放光芒 <span class="emoji">✨</span></p>
         
         <div class="countdown-container">
-            <div class="countdown-title">距离IB大考还剩：</div>
+            <div class="countdown-title">距离2025IB大考已经过去：</div>
             <div id="countdown">正在计算...</div>
             
             <div class="time-info">
@@ -293,7 +293,7 @@ document.addEventListener("pjax:complete", reset);reset()})</script><meta name="
         <div class="audio-icon">🎵</div>
         <div class="audio-player">
             <audio controls autoplay loop>
-                <source src="https://ws6.stream.qqmusic.qq.com/O400003UijFD05xkuV.ogg?guid=7641128020&vkey=E51F14932474B78ED9E3984AA6B6BCFAC4069EC7EF6345034779F89F54AB097E52A7426334E750C47FF04A464216F97AE55E8C4A97F509B3__v21ea0f893&uin=1152921504958834159&fromtag=120532&src=O400002Oncp24fbMi8.ogg" type="audio/ogg">
+                <source src="Infinite.ogg" type="audio/ogg">
             </audio>
         </div>
     </div>
@@ -347,12 +347,12 @@ document.addEventListener("pjax:complete", reset);reset()})</script><meta name="
             // 倒计时秒数
             const diffSeconds = Math.floor((target - now) / 1000);
             document.getElementById('countdown').textContent =
-                `${diffSeconds} 秒 (约 ${Math.round(diffSeconds/3600)} 小时)`;
+                `${Math.abs(diffSeconds)} 秒 (约 ${Math.abs(Math.round(diffSeconds/3600))} 小时)`;
 
             // 剩余天数
             const diffDays = Math.floor(diffSeconds / (3600 * 24));
             document.getElementById('days-left').textContent =
-                `剩余天数：${diffDays} 天`;
+                `已过天数：${Math.abs(diffDays)} 天`;
         }
 
         // 初始化
