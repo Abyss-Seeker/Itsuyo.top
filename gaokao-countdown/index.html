@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>罗德岛高考作战指挥中心 | 博士指令已下达</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    /* 粒子背景修复 */
+    #particles-js {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    /* 其他样式 */
+    :root {
+      --ark-blue: #1a3a6d;
+      --ark-gold: #d4af37;
+      --ark-red: #c93c3c;
+      --ark-bg: #0d1b2a;
+      --ark-card: rgba(26, 58, 109, 0.25);
+    }
+
+    body {
+      background: radial-gradient(ellipse at bottom, #0d1b2a 0%, #000718 100%) fixed;
+      color: #e0e0e0;
+      font-family: 'Microsoft YaHei', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* 初始加载容器 */
+    #initial-loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      background: rgba(13, 27, 42, 0.95);
+      transition: opacity 1s ease, transform 1s ease;
+    }
+
+    .rhodes-logo {
+      width: 150px;
+      height: 150px;
+      margin: 0 auto 2rem;
+      background:
+        radial-gradient(circle, transparent 60%, var(--ark-gold) 65%),
+        linear-gradient(45deg, transparent 45%, var(--ark-gold) 50%, transparent 55%),
+        linear-gradient(-45deg, transparent 45%, var(--ark-gold) 50%, transparent 55%);
+      border: 3px solid var(--ark-gold);
+      border-radius: 50%;
+      position: relative;
+      animation: rotateLogo 15s linear infinite, pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes rotateLogo {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.5); }
+      70% { box-shadow: 0 0 0 20px rgba(212, 175, 55, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+    }
+
+    .loader-content {
+      text-align: center;
+      animation: fadeInUp 1.5s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      color: var(--ark-gold);
+      font-size: 3rem;
+      text-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
+      letter-spacing: 3px;
+      margin: 0;
+      position: relative;
+    }
+
+    h1::after {
+      content: "";
+      display: block;
+      width: 300px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--ark-gold), transparent);
+      margin: 15px auto;
+      animation: expandLine 2s ease-out;
+    }
+
+    @keyframes expandLine {
+      from { width: 0; opacity: 0; }
+      to { width: 300px; opacity: 1; }
+    }
+
+    .loader-subtitle {
+      font-size: 1.5rem;
+      margin-top: 1rem;
+      color: #aaa;
+      animation: fadeInDelay 2s ease-out;
+    }
+
+    @keyframes fadeInDelay {
+      0% { opacity: 0; }
+      70% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    /* 下滑提示动画 */
+    #scroll-hint {
+      position: absolute;
+      bottom: 40px;
+      font-size: 3rem;
+      color: var(--ark-gold);
+      animation: pulseArrow 2s infinite;
+      opacity: 0.7;
+      cursor: pointer;
+    }
+
+    @keyframes pulseArrow {
+      0%, 100% {
+        transform: translateY(0);
+        opacity: 0.4;
+      }
+      50% {
+        transform: translateY(20px);
+        opacity: 1;
+        text-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
+      }
+    }
+
+    /* 主内容容器 - 初始隐藏 */
+    .main-content {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 1s ease, transform 1s ease;
+    }
+
+    /* 动态舰桥头部 */
+    .header {
+      background: linear-gradient(to right, var(--ark-blue), #152a4d);
+      padding: 2rem 0;
+      text-align: center;
+      position: relative;
+      border-bottom: 3px solid var(--ark-gold);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+      clip-path: polygon(0 0, 100% 0, 100% 90%, 50% 100%, 0 90%);
+    }
+
+    /* 作战指挥台 - 卡片宽度调整为100% */
+    .container {
+      max-width: 100%;
+      margin: 3rem auto;
+      padding: 0 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center; /* 卡片居中 */
+    }
+
+    /* 战术面板 - 宽度调整为100% */
+    .card {
+      background: var(--ark-card);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 10px;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      transition: all 0.4s ease;
+      backdrop-filter: blur(5px);
+      opacity: 0;
+      transform: translateY(30px);
+      width: 90%; /* 宽度调整为90% */
+      max-width: 1200px; /* 最大宽度限制 */
+      margin-bottom: 2rem; /* 卡片间距 */
+    }
+
+    .card-visible {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 30px rgba(212, 175, 55, 0.3);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--ark-blue), var(--ark-gold), var(--ark-blue));
+      animation: borderFlow 3s infinite linear;
+    }
+
+    @keyframes borderFlow {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    /* 科目时间表 */
+    .schedule-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .schedule-table th {
+      background: rgba(26, 58, 109, 0.6);
+      color: var(--ark-gold);
+      padding: 12px 8px;
+      text-align: center;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+
+    .schedule-table td {
+      padding: 10px 8px;
+      text-align: center;
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      position: relative;
+      transition: background 0.3s;
+    }
+
+    .schedule-table tr:hover td {
+      background: rgba(26, 58, 109, 0.4);
+    }
+
+    .schedule-table td::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 5%;
+      width: 90%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--ark-gold), transparent);
+    }
+
+    /* 作战指令按钮 */
+    .ark-btn {
+      background: linear-gradient(135deg, var(--ark-blue), #2a5298);
+      color: white;
+      border: none;
+      padding: 14px 35px;
+      font-size: 1.2rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 2rem auto 0;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .ark-btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(42, 82, 152, 0.5);
+    }
+
+    .ark-btn i {
+      margin-right: 10px;
+      font-size: 1.4rem;
+    }
+
+    /* 作战倒计时 */
+    .countdown-box {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 1.5rem;
+    }
+
+    .countdown-unit {
+      background: rgba(26, 58, 109, 0.4);
+      border: 1px solid var(--ark-gold);
+      border-radius: 10px;
+      padding: 15px;
+      min-width: 80px;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .countdown-value {
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: var(--ark-gold);
+      line-height: 1;
+    }
+
+    .countdown-label {
+      font-size: 0.9rem;
+      margin-top: 5px;
+      opacity: 0.8;
+    }
+
+    /* 页脚 */
+    .footer {
+      text-align: center;
+      padding: 2.5rem 2rem;
+      background: rgba(13, 27, 42, 0.7);
+      border-top: 1px solid var(--ark-blue);
+      margin-top: 3rem;
+      font-size: 0.9rem;
+      clip-path: polygon(50% 20%, 100% 0, 100% 100%, 0 100%, 0 0);
+    }
+
+    /* 粒子渐入动画 */
+    @keyframes particleFadeIn {
+      0% { opacity: 0; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+
+      h1 { font-size: 2.2rem; }
+
+      .countdown-box {
+        flex-wrap: wrap;
+      }
+
+      .countdown-unit {
+        min-width: 70px;
+        padding: 10px;
+      }
+
+      .countdown-value {
+        font-size: 1.8rem;
+      }
+
+      .rhodes-logo {
+        width: 120px;
+        height: 120px;
+      }
+
+      #scroll-hint {
+        font-size: 2.5rem;
+        bottom: 30px;
+      }
+
+      .card {
+        width: 95%; /* 移动端宽度更大 */
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 初始加载容器 -->
+  <div id="initial-loader">
+    <div class="rhodes-logo"></div>
+    <div class="loader-content">
+      <h1>罗德岛高考作战指挥中心</h1>
+      <p class="loader-subtitle">博士指令 • 精英干员待命 • 全舰备战</p>
+    </div>
+    <div id="scroll-hint">⌄</div>
+  </div>
+
+  <!-- 粒子背景（优化版） -->
+  <div id="particles-js"></div>
+
+  <!-- 主内容容器（初始隐藏） -->
+  <div class="main-content">
+    <!-- 头部区域 -->
+    <header class="header">
+      <div class="rhodes-logo"></div>
+      <h1>罗德岛高考作战指挥中心</h1>
+      <p>博士指令 • 精英干员待命 • 全舰备战</p>
+    </header>
+
+    <div class="container">
+      <!-- 作战倒计时 -->
+      <div class="card">
+        <h2><i class="fas fa-hourglass-half"></i> 终局作战倒计时</h2>
+        <p style="text-align: center; opacity: 0.9;">距离首场作战仅剩：</p>
+        <div class="countdown-box">
+          <div class="countdown-unit">
+            <div class="countdown-value" id="days">00</div>
+            <div class="countdown-label">天</div>
+          </div>
+          <div class="countdown-unit">
+            <div class="countdown-value" id="hours">00</div>
+            <div class="countdown-label">时</div>
+          </div>
+          <div class="countdown-unit">
+            <div class="countdown-value" id="minutes">00</div>
+            <div class="countdown-label">分</div>
+          </div>
+          <div class="countdown-unit">
+            <div class="countdown-value" id="seconds">00</div>
+            <div class="countdown-label">秒</div>
+          </div>
+        </div>
+        <div style="margin-top: 20px; text-align: center;">
+          <p><i class="fas fa-calendar-day"></i> 作战日期：2025年6月7日 - 9日</p>
+          <p><i class="fas fa-map-marker-alt"></i> 战场坐标：各考点作战区</p>
+        </div>
+      </div>
+
+      <!-- 作战时间表 -->
+      <div class="card">
+        <h2><i class="fas fa-list-alt"></i> 作战时间表</h2>
+        <table class="schedule-table">
+          <thead>
+            <tr>
+              <th>日期</th>
+              <th>上午</th>
+              <th>下午</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>6月7日</td>
+              <td>语文<br>(9:00-11:30)</td>
+              <td>数学<br>(15:00-17:00)</td>
+            </tr>
+            <tr>
+              <td>6月8日</td>
+              <td>物理/历史<br>(9:00-10:15)</td>
+              <td>外语<br>(15:00-17:00)</td>
+            </tr>
+            <tr>
+              <td>6月9日</td>
+              <td>化学 (8:30-9:45)<br>地理 (11:00-12:15)</td>
+              <td>思想政治 (14:30-15:45)<br>生物学 (17:00-18:15)</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="margin-top: 15px; text-align: center; opacity: 0.8;">
+          <i class="fas fa-exclamation-circle"></i> 具体时间以当地作战指挥部通知为准
+        </p>
+      </div>
+
+      <!-- 战术支援区 -->
+      <div class="card">
+        <h2><i class="fas fa-headset"></i> 罗德岛战术支援</h2>
+        <div style="margin-top: 20px;">
+          <div style="display: flex; align-items: center; margin-bottom: 15px;">
+            <i class="fas fa-shield-alt" style="font-size: 2rem; color: var(--ark-gold); margin-right: 15px;"></i>
+            <div>
+              <h3 style="margin: 0;">源石防护指南</h3>
+              <p style="margin: 5px 0 0; opacity: 0.9;">携带作战证件 • 禁用通讯设备 • 提前部署考场路线</p>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; margin-bottom: 15px;">
+            <i class="fas fa-heartbeat" style="font-size: 2rem; color: var(--ark-gold); margin-right: 15px;"></i>
+            <div>
+              <h3 style="margin: 0;">生命维持建议</h3>
+              <p style="margin: 5px 0 0; opacity: 0.9;">充足休眠 • 均衡补给 • 保持最佳作战状态</p>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center;">
+            <i class="fas fa-brain" style="font-size: 2rem; color: var(--ark-gold); margin-right: 15px;"></i>
+            <div>
+              <h3 style="margin: 0;">战术思维训练</h3>
+              <p style="margin: 5px 0 0; opacity: 0.9;">审题如分析敌人属性 • 答题如部署干员站位</p>
+            </div>
+          </div>
+        </div>
+
+        <button class="ark-btn" id="generateBtn">
+          <i class="fas fa-bullhorn"></i> 获取精英干员祝福
+        </button>
+      </div>
+
+      <!-- 祝福展示区 -->
+      <div class="card">
+        <h2><i class="fas fa-comments"></i> 博士通讯频道</h2>
+        <div style="min-height: 180px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 2rem; margin: 1.5rem 0; position: relative; border: 1px dashed rgba(212, 175, 55, 0.4); border-radius: 8px;">
+          <p class="slogan" id="slogan" style="font-size: 1.5rem; font-weight: bold; color: var(--ark-gold); text-shadow: 0 0 8px rgba(212, 175, 55, 0.5); margin: 0; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+            点击按钮接通罗德岛指挥中心
+          </p>
+        </div>
+        <div style="text-align: center;">
+          <div style="display: inline-flex; gap: 15px;">
+            <div class="icon-box">
+              <i class="fas fa-dove" style="color: #4dabf7;"></i>
+              <span>阿米娅</span>
+            </div>
+            <div class="icon-box">
+              <i class="fas fa-dragon" style="color: #ff6b6b;"></i>
+              <span>陈</span>
+            </div>
+            <div class="icon-box">
+              <i class="fas fa-crown" style="color: #fcc419;"></i>
+              <span>银灰</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 页脚（已删除链接） -->
+    <footer class="footer">
+      <p>明日方舟 × 高考应援作战计划 | 愿所有考生如击败整合运动般征服考场</p>
+      <p>© 2025 罗德岛制药公司 | 全舰系统待命支援</p>
+      <p>By Abyss-Seeker × DeepSeek</p>
+    </footer>
+  </div>
+
+  <!-- 粒子JS和主脚本 -->
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <script>
+    // 优化粒子参数（更细腻、更密集）
+    particlesJS("particles-js", {
+      particles: {
+        number: { value: 150, density: { enable: true, value_area: 800 } },
+        color: { value: "#d4af37" },
+        shape: {
+          type: ["circle", "edge", "triangle"],
+          stroke: { width: 0, color: "#000000" },
+          polygon: { nb_sides: 5 }
+        },
+        opacity: {
+          value: 0.3,
+          random: true,
+          anim: {
+            enable: true,
+            speed: 1,
+            opacity_min: 0.1,
+            sync: false
+          }
+        },
+        size: {
+          value: 2.5,
+          random: true,
+          anim: {
+            enable: true,
+            speed: 2,
+            size_min: 0.1,
+            sync: false
+          }
+        },
+        line_linked: {
+          enable: true,
+          distance: 120,
+          color: "#1a3a6d",
+          opacity: 0.2,
+          width: 1
+        },
+        move: {
+          enable: true,
+          speed: 1.2,
+          direction: "none",
+          random: true,
+          straight: false,
+          out_mode: "out",
+          bounce: false
+        }
+      },
+      interactivity: {
+        detect_on: "canvas",
+        events: {
+          onhover: {
+            enable: true,
+            mode: "grab",
+            parallax: {
+              enable: true,
+              force: 30,
+              smooth: 20
+            }
+          },
+          onclick: {
+            enable: true,
+            mode: "push"
+          },
+          resize: true
+        }
+      },
+      retina_detect: true
+    });
+
+    // 增强粒子与鼠标的交互效果
+    const canvasEl = document.querySelector("#particles-js canvas");
+    if(canvasEl) {
+      canvasEl.addEventListener('mousemove', (e) => {
+        // 更新粒子系统
+        particlesJS("particles-js", {
+          interactivity: {
+            events: {
+              onhover: {
+                enable: true,
+                mode: "repulse",
+                parallax: {
+                  enable: true,
+                  force: 60,
+                  smooth: 30
+                }
+              }
+            }
+          }
+        });
+      });
+    }
+
+    // 高考祝福语库（明日方舟角色风格）
+    const messages = [
+      "阿米娅：博士，您的战术头脑连凯尔希医生都赞叹不已，这场作战定能完美攻略！",
+      "银灰：战场如商场，沉着冷静方能掌控全局。相信你的判断，博士！",
+      "能天使：砰砰！答案就像我的铳弹一样精准射出！保持这个节奏！",
+      "陈：每道题目都是一个新的作战任务，展示你精英干员的实力！",
+      "星熊：盾已就绪！挡住所有干扰，专注眼前的战场！",
+      "艾雅法拉：知识如同源石技艺，积累终将爆发！最后一战，必胜！",
+      "推进之王：维多利亚的骑士永不退缩！考场即战场，勇往直前！",
+      "塞雷娅：严谨如实验室操作，细致检查每个作战步骤！",
+      "闪灵：医疗组待命！保持最佳状态，你的健康是首要任务！",
+      "德克萨斯：冷静如我手中的剑，精准解决每个目标！",
+      "凯尔希：你的努力终将开花结果，罗德岛以你为荣！",
+      "伊芙利特：燃烧吧！用热情点燃知识的火焰！",
+      "刻俄柏：专注如我狩猎时的目光，必能捕捉每一分！",
+      "安洁莉娜：轻盈面对，你的实力会如重力般压倒一切困难！"
+    ];
+
+    // 高考日期（2025年6月7日9:00）
+    const examDate = new Date(2025, 5, 7, 9, 0, 0);
+
+    // 更新倒计时
+    function updateCountdown() {
+      const now = new Date();
+      const diff = examDate - now;
+
+      if (diff <= 0) {
+        document.getElementById('days').textContent = "00";
+        document.getElementById('hours').textContent = "00";
+        document.getElementById('minutes').textContent = "00";
+        document.getElementById('seconds').textContent = "00";
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      document.getElementById('days').textContent = days.toString().padStart(2, '0');
+      document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+      document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+      document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+    }
+
+    // 滚动事件处理
+    function handleScroll() {
+      const scrollPosition = window.scrollY;
+
+      // 如果用户开始滚动，隐藏初始加载界面
+      if (scrollPosition > 50) {
+        const loader = document.getElementById('initial-loader');
+        loader.style.opacity = '0';
+        loader.style.pointerEvents = 'none';
+
+        // 显示主内容
+        document.querySelector('.main-content').style.opacity = '1';
+        document.querySelector('.main-content').style.transform = 'translateY(0)';
+
+        // 添加卡片动画
+        setTimeout(() => {
+          document.querySelectorAll('.card').forEach((card, index) => {
+            setTimeout(() => {
+              card.classList.add('card-visible');
+            }, index * 200);
+          });
+        }, 300);
+
+        // 移除滚动监听器
+        window.removeEventListener('scroll', handleScroll);
+      }
+    }
+
+    // 创建粒子渐入效果
+    function createParticleEffect() {
+      const particlesContainer = document.getElementById('particles-js');
+
+      // 添加粒子渐入动画
+      particlesContainer.style.animation = 'particleFadeIn 0.8s ease-out forwards';
+
+      // 动画结束后移除样式
+      setTimeout(() => {
+        particlesContainer.style.animation = '';
+      }, 800);
+    }
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      // 倒计时初始化
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+
+      // 添加滚动监听器
+      window.addEventListener('scroll', handleScroll);
+
+      // 点击下滑提示滚动页面
+      document.getElementById('scroll-hint').addEventListener('click', () => {
+        window.scrollTo({
+          top: window.innerHeight,
+          behavior: 'smooth'
+        });
+      });
+
+      // 按钮事件
+      const sloganElement = document.getElementById('slogan');
+      const generateBtn = document.getElementById('generateBtn');
+
+      // 防重复点击机制
+      let clickAllowed = true;
+
+      generateBtn.addEventListener('click', () => {
+        if (!clickAllowed) return;
+        clickAllowed = false;
+
+        sloganElement.style.animation = 'none';
+
+        // 随机选择一条祝福语
+        const randomIndex = Math.floor(Math.random() * messages.length);
+        const randomMessage = messages[randomIndex];
+
+        // 重置动画并更新内容
+        setTimeout(() => {
+          sloganElement.style.animation = 'fadeIn 1s ease';
+          sloganElement.textContent = randomMessage;
+        }, 10);
+
+        // 创建粒子渐入效果
+        createParticleEffect();
+
+        // 1.5秒后解锁按钮
+        setTimeout(() => {
+          clickAllowed = true;
+        }, 1500);
+      });
+
+      // 5秒后如果用户没有滚动，自动显示主内容
+      setTimeout(() => {
+        if (window.scrollY === 0) {
+          handleScroll();
+        }
+      }, 5000);
+    });
+  </script>
+</body>
+</html>
