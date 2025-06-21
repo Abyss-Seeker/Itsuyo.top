@@ -1,0 +1,3123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberpongk</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0c1027, #1a1f4b, #0c1027);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            overflow: hidden;
+            color: #e1e6ff;
+            padding: 20px;
+        }
+
+        /* 新增开始页面样式 */
+        .start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(8, 15, 32, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .start-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(20px);
+        }
+
+        .start-container {
+            width: 100%;
+            max-width: 700px;
+            padding: 30px;
+            background: rgba(12, 22, 45, 0.85);
+            border: 1px solid rgba(101, 80, 255, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 0 50px rgba(101, 80, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .start-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg,
+                transparent 0%,
+                rgba(101, 80, 255, 0.1) 50%,
+                transparent 100%);
+            animation: scanLine 8s linear infinite;
+            z-index: -1;
+        }
+
+        .start-title {
+            text-align: center;
+            font-size: 3.5rem;
+            color: #e1e6ff;
+            text-shadow: 0 0 20px rgba(101, 80, 255, 0.8);
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+            font-weight: 800;
+            position: relative;
+        }
+
+        .start-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #6550ff, transparent);
+        }
+
+        .start-subtitle {
+            text-align: center;
+            color: #a0a8ff;
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .start-options {
+            margin-bottom: 40px;
+        }
+
+        .option-group {
+            margin-bottom: 25px;
+        }
+
+        .option-title {
+            font-size: 1.4rem;
+            color: #e1e6ff;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-title::before {
+            content: '▶';
+            color: #ffcc00;
+            margin-right: 10px;
+            font-size: 0.8rem;
+        }
+
+        .difficulty-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+
+        .start-difficulty-option {
+            background: rgba(16, 24, 48, 0.7);
+            border: 1px solid rgba(101, 80, 255, 0.3);
+            color: #e1e6ff;
+            padding: 12px 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .start-difficulty-option:hover {
+            background: rgba(101, 80, 255, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(101, 80, 255, 0.3);
+        }
+
+        .start-difficulty-option.active {
+            background: rgba(101, 80, 255, 0.6);
+            border-color: #6550ff;
+            box-shadow: 0 0 15px rgba(101, 80, 255, 0.5);
+        }
+
+        .ai-toggle-container {
+            display: flex;
+            align-items: center;
+            background: rgba(16, 24, 48, 0.7);
+            border: 1px solid rgba(255, 165, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .ai-toggle-container:hover {
+            background: rgba(255, 165, 0, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 165, 0, 0.2);
+        }
+
+        .ai-toggle-label {
+            flex-grow: 1;
+            font-size: 1.1rem;
+            color: #e1e6ff;
+        }
+
+        .ai-toggle {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+
+        .ai-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .ai-toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 68, 68, 0.5);
+            transition: .4s;
+            border-radius: 30px;
+        }
+
+        .ai-toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: #e1e6ff;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .ai-toggle-slider {
+            background-color: rgba(0, 200, 83, 0.7);
+        }
+
+        input:checked + .ai-toggle-slider:before {
+            transform: translateX(30px);
+        }
+
+        .start-button {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #6550ff, #8a7cff);
+            border: none;
+            color: #e1e6ff;
+            padding: 15px;
+            font-size: 1.4rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .start-button::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg,
+                #6550ff, #8a7cff,
+                #ffcc00, #ff3366,
+                #6550ff, #8a7cff);
+            background-size: 300% 300%;
+            z-index: -1;
+            border-radius: 10px;
+            animation: gradientBG 3s ease infinite;
+        }
+
+        .start-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(101, 80, 255, 0.6);
+        }
+
+        .start-button:active {
+            transform: scale(0.98);
+        }
+
+        @keyframes scanLine {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .game-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            background: rgba(12, 16, 39, 0.8);
+            border-radius: 16px;
+            box-shadow: 0 0 40px rgba(101, 80, 255, 0.3);
+            overflow: hidden;
+            border: 1px solid rgba(101, 80, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .game-header {
+            text-align: center;
+            padding: 5px;
+            background: rgba(0, 0, 0, 0.4);
+            border-bottom: 1px solid rgba(101, 80, 255, 0.3);
+        }
+
+        .game-title {
+            color: #e1e6ff;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px #6550ff;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        .game-subtitle {
+            color: #a0a8ff;
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 30px;
+            background: rgba(16, 20, 45, 0.7);
+            position: relative;
+        }
+
+        .player-stats {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .player-name {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            color: #a0a8ff;
+        }
+
+        .player-score {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ffcc00;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+            position: relative;
+        }
+
+        .score-animation {
+            position: absolute;
+            font-size: 3rem;
+            color: #ff3366;
+            opacity: 0;
+            animation: scorePopup 1s forwards;
+            pointer-events: none;
+            z-index: 10;
+            text-shadow: 0 0 15px rgba(255, 51, 102, 0.7);
+        }
+
+        @keyframes scorePopup {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+        }
+
+        .game-content {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #game-canvas {
+            background: rgba(8, 12, 33, 0.7);
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(101, 80, 255, 0.2);
+            border: 1px solid rgba(101, 80, 255, 0.2);
+        }
+
+        .controls-info {
+            text-align: center;
+            padding: 15px;
+            font-size: 1rem;
+            color: #a0a8ff;
+            background: rgba(16, 20, 45, 0.6);
+            border-top: 1px solid rgba(101, 80, 255, 0.2);
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            background: #ffcc00;
+            opacity: 0.8;
+        }
+
+        .center-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            background: linear-gradient(to bottom,
+                transparent 0%,
+                rgba(101, 80, 255, 0.5) 10%,
+                rgba(101, 80, 255, 0.8) 50%,
+                rgba(101, 80, 255, 0.5) 90%,
+                transparent 100%);
+            transform: translateX(-50%);
+        }
+
+        .glow-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 16px;
+            box-shadow: inset 0 0 30px rgba(101, 80, 255, 0.5);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .victory-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(12, 16, 39, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .victory-message {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #ffcc00;
+            text-shadow: 0 0 20px rgba(255, 204, 0, 0.8);
+            margin-bottom: 30px;
+            text-align: center;
+            animation: pulse 1.5s infinite;
+        }
+
+        .restart-btn {
+            background: rgba(101, 80, 255, 0.5);
+            border: 2px solid #a0a8ff;
+            color: #e1e6ff;
+            padding: 12px 35px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .restart-btn:hover {
+            background: rgba(101, 80, 255, 0.8);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(101, 80, 255, 0.5);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); text-shadow: 0 0 20px rgba(255, 204, 0, 0.8); }
+            50% { transform: scale(1.1); text-shadow: 0 0 30px rgba(255, 204, 0, 1); }
+            100% { transform: scale(1); text-shadow: 0 0 20px rgba(255, 204, 0, 0.8); }
+        }
+
+        .obstacle-warning {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+            animation: warningPulse 0.5s infinite alternate;
+        }
+
+        @keyframes warningPulse {
+            0% { opacity: 0.3; transform: scale(0.8); }
+            100% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        /* 事件弹窗样式 */
+        .event-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(12, 16, 39, 0.95);
+            border: 2px solid;
+            border-radius: 12px;
+            padding: 15px 20px;
+            min-width: 250px;
+            max-width: 350px;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.5s ease, opacity 0.5s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .event-notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .event-notification.positive {
+            border-color: #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .event-notification.neutral {
+            border-color: #888888;
+            box-shadow: 0 0 20px rgba(136, 136, 136, 0.3);
+        }
+
+        .event-notification.negative {
+            border-color: #ff4444;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+        }
+
+        .event-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #e1e6ff;
+        }
+
+        .event-description {
+            font-size: 0.9rem;
+            color: #a0a8ff;
+            line-height: 1.4;
+        }
+
+        .event-trigger {
+            font-size: 0.8rem;
+            color: #ffcc00;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        /* 暂停/重新开始按钮样式 */
+        .pause-button {
+            position: fixed;
+            top: 20px;
+            right: 5%;
+            transform: translateX(50%);
+            background: rgba(101, 80, 255, 0.8);
+            border: 2px solid rgba(101, 80, 255, 0.9);
+            color: #e1e6ff;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            letter-spacing: 1px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .pause-button:hover {
+            background: rgba(101, 80, 255, 1);
+            transform: translateX(50%) scale(1.05);
+            box-shadow: 0 0 20px rgba(101, 80, 255, 0.6);
+        }
+
+        .pause-button.paused {
+            background: rgba(255, 68, 68, 0.8);
+            border-color: rgba(255, 68, 68, 0.9);
+        }
+
+        .pause-button.paused:hover {
+            background: rgba(255, 68, 68, 1);
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.6);
+        }
+
+        /* 调试窗口样式 */
+        .debug-panel {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(12, 16, 39, 0.95);
+            border: 2px solid rgba(255, 68, 68, 0.5);
+            border-radius: 12px;
+            padding: 15px;
+            width: 60px;
+            height: 60px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .debug-panel:hover {
+            width: 280px;
+            height: 420px;
+            cursor: default;
+        }
+
+        .debug-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #ff4444;
+            transition: opacity 0.3s ease;
+        }
+
+        .debug-panel:hover .debug-icon {
+            opacity: 0;
+        }
+
+        .debug-content {
+            opacity: 0;
+            transition: opacity 0.3s ease 0.1s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            font-size: 0.85rem;
+        }
+
+        .debug-panel:hover .debug-content {
+            opacity: 1;
+        }
+
+        .debug-title {
+            color: #e1e6ff;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 68, 68, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .debug-section {
+            margin-bottom: 12px;
+        }
+
+        .debug-section-title {
+            color: #ff4444;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .debug-item {
+            color: #a0a8ff;
+            margin: 2px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .debug-label {
+            color: #e1e6ff;
+        }
+
+        .debug-value {
+            color: #ffcc00;
+            font-weight: bold;
+        }
+
+        /* 难度调整窗口样式 */
+        .difficulty-panel {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            background: rgba(12, 16, 39, 0.95);
+            border: 2px solid rgba(101, 80, 255, 0.5);
+            border-radius: 12px;
+            padding: 15px;
+            width: 60px;
+            height: 60px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .difficulty-panel:hover {
+            width: 200px;
+            height: 320px;
+            cursor: default;
+        }
+
+        .difficulty-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #6550ff;
+            transition: opacity 0.3s ease;
+        }
+
+        .difficulty-panel:hover .difficulty-icon {
+            opacity: 0;
+        }
+
+        .difficulty-content {
+            opacity: 0;
+            transition: opacity 0.3s ease 0.1s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .difficulty-panel:hover .difficulty-content {
+            opacity: 1;
+        }
+
+        .difficulty-title {
+            color: #e1e6ff;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .difficulty-option {
+            background: rgba(101, 80, 255, 0.3);
+            border: 1px solid rgba(101, 80, 255, 0.5);
+            color: #e1e6ff;
+            padding: 8px 12px;
+            margin: 3px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .difficulty-option:hover {
+            background: rgba(101, 80, 255, 0.6);
+            transform: scale(1.02);
+        }
+
+        .difficulty-option.active {
+            background: rgba(101, 80, 255, 0.8);
+            border-color: #6550ff;
+            box-shadow: 0 0 10px rgba(101, 80, 255, 0.5);
+        }
+
+        /* 电脑回球增强选项样式 */
+        .ai-enhancement-option {
+            background: rgba(255, 165, 0, 0.3);
+            border: 1px solid rgba(255, 165, 0, 0.5);
+            color: #e1e6ff;
+            padding: 8px 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .ai-enhancement-option:hover {
+            background: rgba(255, 165, 0, 0.6);
+            transform: scale(1.02);
+        }
+
+        .ai-enhancement-option.active {
+            background: rgba(255, 165, 0, 0.8);
+            border-color: #ffa500;
+            box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 2rem;
+            }
+
+            .game-subtitle {
+                font-size: 0.9rem;
+            }
+
+            .player-name {
+                font-size: 1rem;
+            }
+
+            .player-score {
+                font-size: 2rem;
+            }
+
+            .victory-message {
+                font-size: 2.5rem;
+            }
+
+            .event-notification {
+                top: 10px;
+                right: 10px;
+                min-width: 200px;
+                max-width: 280px;
+                padding: 12px 15px;
+            }
+
+            .event-title {
+                font-size: 1rem;
+            }
+
+            .event-description {
+                font-size: 0.8rem;
+            }
+
+
+            .difficulty-panel {
+                right: 10px;
+                width: 50px;
+                height: 50px;
+            }
+
+            .difficulty-panel:hover {
+                width: 180px;
+                height: 280px;
+            }
+
+            .difficulty-icon {
+                font-size: 20px;
+            }
+
+            .debug-panel {
+                left: 10px;
+                width: 50px;
+                height: 50px;
+            }
+
+            .debug-panel:hover {
+                width: 260px;
+                height: 300px;
+            }
+
+            .debug-icon {
+                font-size: 20px;
+            }
+
+            .pause-button {
+                top: 10px;
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 新增开始页面 -->
+    <div class="start-screen" id="start-screen">
+        <div class="start-container">
+            <h1 class="start-title">CYBERPONGK</h1>
+            <p class="start-subtitle">直面强敌，守住底线，转战回击<br>为了最佳的游戏体验，请打开敌方回球增强</p>
+
+            <div class="start-options">
+                <div class="option-group">
+                    <div class="option-title">作战难度</div>
+                    <div class="difficulty-options">
+                        <div class="start-difficulty-option active" data-speed="1.75">万泉部诗人</div>
+                        <div class="start-difficulty-option" data-speed="2.5">野比大雄</div>
+                        <div class="start-difficulty-option" data-speed="3">少女B</div>
+                        <div class="start-difficulty-option" data-speed="3.5">小埋</div>
+                        <div class="start-difficulty-option" data-speed="4.25">空&白</div>
+                    </div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-title">敌方强化模块</div>
+                    <div class="ai-toggle-container">
+                        <div class="ai-toggle-label">激活敌方回球增强协议</div>
+                        <label class="ai-toggle">
+                            <input type="checkbox" id="start-ai-enhancement">
+                            <span class="ai-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button class="start-button" id="start-button">启动战斗系统</button>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <div class="glow-effect"></div>
+        <div class="game-header">
+            <h1 class="game-title">CYBERPONGK</h1>
+            <p class="game-subtitle">Itsuyo的摸鱼大（存疑）作 · Crafted with Deepsuck</p>
+        </div>
+
+        <div class="game-stats">
+            <div class="player-stats">
+                <div class="player-name">玩家</div>
+                <div id="player-score" class="player-score">0</div>
+            </div>
+
+            <div class="player-stats">
+                <div id="computer-player-name" class="player-name">电脑</div>
+                <div id="computer-score" class="player-score">0</div>
+            </div>
+        </div>
+
+        <div class="game-content">
+            <div class="center-line"></div>
+            <canvas id="game-canvas" width="800" height="500"></canvas>
+        </div>
+
+        <div class="victory-overlay" id="victory-overlay">
+            <div class="victory-message" id="victory-message"></div>
+            <button class="restart-btn" id="restart-btn">重新开始</button>
+        </div>
+
+        <div class="controls-info">
+            使用鼠标移动控制你的挡板 | 首先获得3分者获胜 | 收集事件获得特殊效果！
+        </div>
+    </div>
+
+    <!-- 难度调整窗口 -->
+    <div class="difficulty-panel" id="difficulty-panel">
+        <div class="difficulty-icon">⚙️</div>
+        <div class="difficulty-content">
+            <div class="difficulty-title">难度设置</div>
+            <div class="difficulty-option" data-speed="1.75">万泉部诗人</div>
+            <div class="difficulty-option" data-speed="2.5">野比大雄</div>
+            <div class="difficulty-option active" data-speed="3">少女B</div>
+            <div class="difficulty-option" data-speed="3.5">小埋</div>
+            <div class="difficulty-option" data-speed="4.25">空&白</div>
+
+            <!-- 电脑回球增强选项 -->
+            <div class="ai-enhancement-option" id="ai-enhancement-toggle">
+                敌方回球增强
+            </div>
+        </div>
+    </div>
+
+    <!-- 调试窗口 -->
+    <div class="debug-panel" id="debug-panel">
+        <div class="debug-icon">🐛</div>
+        <div class="debug-content">
+            <div class="debug-title">调试信息</div>
+            
+            <div class="debug-section">
+                <div class="debug-section-title">球状态</div>
+                <div class="debug-item">
+                    <span class="debug-label">速度:</span>
+                    <span class="debug-value" id="debug-ball-speed">0</span>
+                </div>
+                <div class="debug-item">
+                    <span class="debug-label">位置:</span>
+                    <span class="debug-value" id="debug-ball-position">0,0</span>
+                </div>
+                <div class="debug-item">
+                    <span class="debug-label">透明度:</span>
+                    <span class="debug-value" id="debug-ball-alpha">1.0</span>
+                </div>
+            </div>
+
+            <div class="debug-section">
+                <div class="debug-section-title">电脑数据</div>
+                <div class="debug-item">
+                    <span class="debug-label">速度:</span>
+                    <span class="debug-value" id="debug-computer-speed">3</span>
+                </div>
+                <div class="debug-item">
+                    <span class="debug-label">位置:</span>
+                    <span class="debug-value" id="debug-computer-position">0</span>
+                </div>
+                <div class="debug-item">
+                    <span class="debug-label">速度倍数:</span>
+                    <span class="debug-value" id="debug-computer-multiplier">1.0</span>
+                </div>
+            </div>
+
+            <div class="debug-section">
+                <div class="debug-section-title">事件状态</div>
+                <div class="debug-item">
+                    <span class="debug-label">活跃事件:</span>
+                    <span class="debug-value" id="debug-active-events">0</span>
+                </div>
+                <div class="debug-item">
+                    <span class="debug-label">障碍物:</span>
+                    <span class="debug-value" id="debug-obstacles">0</span>
+                </div>
+            </div>
+
+            <div class="debug-section">
+                <div class="debug-section-title">系统</div>
+                <div class="debug-item">
+                    <span class="debug-label">FPS:</span>
+                    <span class="debug-value" id="debug-fps">0</span>
+                </div>
+                <div class="debug-item">
+                    <span class="debug-label">游戏时间:</span>
+                    <span class="debug-value" id="debug-game-time">0s</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 暂停/重新开始按钮 -->
+    <button class="pause-button" id="pause-button">暂停</button>
+
+    <script>
+        // 新增开始页面功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const startScreen = document.getElementById('start-screen');
+            const startButton = document.getElementById('start-button');
+            const startDifficultyOptions = document.querySelectorAll('.start-difficulty-option');
+            const startAiToggle = document.getElementById('start-ai-enhancement');
+
+            // 设置默认选项（简单难度）
+            let selectedDifficulty = 1.75;
+
+            // 开始页面难度选择
+            startDifficultyOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // 移除所有active类
+                    startDifficultyOptions.forEach(opt => opt.classList.remove('active'));
+                    // 添加active类到当前选项
+                    this.classList.add('active');
+                    // 更新选择的难度
+                    selectedDifficulty = parseFloat(this.dataset.speed);
+                });
+            });
+
+            // AI回球增强选项
+            startAiToggle.addEventListener('change', function() {
+                aiEnhancementEnabled = this.checked;
+            });
+
+            // 开始按钮事件
+            startButton.addEventListener('click', function() {
+                // 应用选择的难度到游戏内
+                computer.speed = selectedDifficulty;
+
+                // 同步游戏内难度选择
+                document.querySelectorAll('.difficulty-option').forEach(option => {
+                    if (parseFloat(option.dataset.speed) === selectedDifficulty) {
+                        option.classList.add('active');
+                    } else {
+                        option.classList.remove('active');
+                    }
+                });
+
+                // 同步AI增强选项
+                const gameAiToggle = document.getElementById('ai-enhancement-toggle');
+                if (aiEnhancementEnabled) {
+                    gameAiToggle.classList.add('active');
+                } else {
+                    gameAiToggle.classList.remove('active');
+                }
+
+                aiEnhancementEnabled = aiEnhancementEnabled;
+
+                // 隐藏开始页面
+                startScreen.classList.add('hidden');
+
+                // 设置电脑名称
+                const computerNameElement = document.getElementById('computer-player-name');
+                const selectedDifficultyOption = document.querySelector('.difficulty-option.active');
+                computerNameElement.textContent = selectedDifficultyOption.textContent;
+
+                // 重置游戏（如果已经玩过）
+                resetGame();
+            });
+        });
+
+        // 获取Canvas和Context
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // 玩家和电脑的分数
+        const playerScoreElement = document.getElementById('player-score');
+        const computerScoreElement = document.getElementById('computer-score');
+        let playerScore = 0;
+        let computerScore = 0;
+
+        // 胜利界面元素
+        const victoryOverlay = document.getElementById('victory-overlay');
+        const victoryMessage = document.getElementById('victory-message');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // 添加帧率锁定相关变量
+        const FPS = 120; // 目标帧率
+        const FRAME_INTERVAL = 1000 / FPS; // 每帧时间(ms)
+        let lastTime = 0;
+        let deltaTime = 0;
+        let accumulatedTime = 0;
+        let frameCount = 0;
+        let lastFpsUpdate = 0;
+
+        // 游戏状态
+        let isGameOver = false;
+        let isResetting = false;
+        let isPaused = false; // 添加暂停状态
+        let gameTime = 0; // 游戏运行时间（毫秒）
+        let nextObstacleTime = 15000; // 第一次障碍物出现时间（15秒后）
+        let nextEventTime = 10000; // 第一次事件出现时间（10秒后）
+
+        // 电脑回球增强功能状态
+        let aiEnhancementEnabled = false;
+
+        // 死球检测相关变量
+        let ballStuckDetection = {
+            lastY: 0,
+            stuckTime: 0,
+            checkInterval: 100, // 每100ms检查一次
+            lastCheckTime: 0,
+            stuckThreshold: 2000, // 2秒内卡在边缘判定为死球
+            edgeThreshold: 30 // 距离边缘30像素内算作边缘
+        };
+
+        // 记录上一个触球的玩家 ('player' 或 'computer')
+        let lastTouchedBy = null;
+
+        // 游戏对象
+        const ball = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            radius: 12,
+            speed: 4,
+            velocityX: 5,
+            velocityY: 5,
+            color: '#ffcc00',
+            trail: [],
+            lastCollision: 0, // 记录上次碰撞时间
+            alpha: 1.0, // 球的透明度
+            speedMultiplier: 1.0 // 速度倍数
+        };
+
+        // 玩家挡板
+        const player = {
+            x: 20,
+            y: canvas.height / 2 - 70,
+            width: 15,
+            height: 120,
+            speed: 8,
+            color: '#6550ff',
+            score: 0,
+            originalHeight: 120,
+            glowEffect: false,
+            glowEndTime: 0,
+            rgbEffect: false, // 添加rgb效果属性
+            rgbEndTime: 0 // 添加rgb效果结束时间
+        };
+
+        // 电脑挡板
+        const computer = {
+            x: canvas.width - 35,
+            y: canvas.height / 2 - 70,
+            width: 15,
+            height: 120,
+            speed: 3,
+            color: '#ff3366',
+            score: 0,
+            originalHeight: 120,
+            glowEffect: false,
+            glowEndTime: 0,
+            rgbEffect: false, // 添加rgb效果属性
+            rgbEndTime: 0, // 添加rgb效果结束时间
+            speedMultiplier: 1.0
+        };
+
+        // 粒子数组
+        const particles = [];
+
+        // 障碍物数组
+        const obstacles = [];
+
+        // 事件数组
+        const events = [];
+
+        // 全局效果
+        const globalEffects = {
+            speedVariation: { active: false, endTime: 0 },
+            obstacleSpeedUp: { active: false, endTime: 0, originalInterval: 0 },
+            thunderCloud: { active: false, endTime: 0, flashTime: 0 },
+            // 新增效果
+            immortalTotem: { active: false, endTime: 0, triggeredBy: null },
+            eventFrenzy: { active: false, endTime: 0, originalEventInterval: 0 },
+            heavenMaker: { active: false, endTime: 0, stackCount: 0 },
+            heavyBall: { active: false, endTime: 0, stackCount: 0 }
+        };
+
+        // 事件类型定义
+        const eventTypes = {
+            // 正面事件
+            PADDLE_GROW: {
+                type: 'positive',
+                color: '#00ff88',
+                name: 'Bo♂ki',
+                description: '板子增长20%，持续20秒'
+            },
+            LIGHTNING_PADDLE: {
+                type: 'positive',
+                color: '#ffff00',
+                name: '咖喱棒',
+                description: '获得金闪闪效果，触球增速80%，持续20秒'
+            },
+            SLOW_COMPUTER: {
+                type: 'positive',
+                color: '#00ccff',
+                name: '寒冰菇',
+                description: '电脑板子移动速度-20%，直到下次进球'
+            },
+            
+            // 中性事件
+            SPEED_VARIATION: {
+                type: 'neutral',
+                color: '#888888',
+                name: '致命节奏',
+                description: '球速在70%-130%间变动，持续15秒'
+            },
+            OBSTACLE_RUSH: {
+                type: 'neutral',
+                color: '#aa6600',
+                name: '移动迷宫',
+                description: '障碍物生成速度提升500%，持续30秒'
+            },
+            SPEED_RESET: {
+                type: 'neutral',
+                color: '#666666',
+                name: '食光鸡',
+                description: '球速重置为初始速度'
+            },
+            
+            // 负面事件
+            THUNDER_CLOUD: {
+                type: 'negative',
+                color: '#444444',
+                name: '骤雨的狭间',
+                description: '中央雷云遮挡视野，球经过时改变角度'
+            },
+            PADDLE_SHRINK: {
+                type: 'negative',
+                color: '#660000',
+                name: '阳痿',
+                description: '板子缩短20%，持续20秒'
+            },
+            BALL_FADE: {
+                type: 'negative',
+                color: '#333333',
+                name: '我名为暗影',
+                description: '球透明度降为10%，持续15秒'
+            },
+            
+            // 新增事件
+            // 正面
+            IMMORTAL_TOTEM: {
+                type: 'positive',
+                color: '#ff00ff',
+                name: '不死图腾',
+                description: '触发方在45秒内第一个失球均不计入分数'
+            },
+            // 中性
+            EVENT_FRENZY: {
+                type: 'neutral',
+                color: '#888888',
+                name: 'EVENT☆START',
+                description: '事件刷新率增加为400%，持续30秒'
+            },
+            HEAVEN_MAKER: {
+                type: 'neutral',
+                color: '#cccccc',
+                name: 'MADE IN HEAVEN',
+                description: '球的大小变为原来的50%，速度变为原来的125%，持续25秒'
+            },
+            HEAVY_BALL: {
+                type: 'neutral',
+                color: '#666666',
+                name: '遇水变大变高',
+                description: '球的大小变为原来的200%，速度变为原来的80%，持续25秒'
+            }
+        };
+
+        // 鼠标移动事件监听
+        canvas.addEventListener('mousemove', (e) => {
+            if (isGameOver || isPaused) return; // 添加暂停检查
+            const rect = canvas.getBoundingClientRect();
+            player.y = e.clientY - rect.top - player.height / 2;
+        });
+
+        // 重新开始按钮事件
+        restartBtn.addEventListener('click', () => {
+            resetGame();
+        });
+
+        // 难度调整事件监听器
+        document.querySelectorAll('.difficulty-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                // 移除所有active类
+                document.querySelectorAll('.difficulty-option').forEach(opt => opt.classList.remove('active'));
+                // 添加active类到当前选项
+                e.target.classList.add('active');
+                // 更新电脑速度
+                const newSpeed = parseFloat(e.target.dataset.speed);
+                computer.speed = newSpeed;
+                // 更新电脑名称
+                const computerNameElement = document.getElementById('computer-player-name');
+                computerNameElement.textContent = e.target.textContent;
+            });
+        });
+
+        // 电脑回球增强选项事件监听器
+        document.getElementById('ai-enhancement-toggle').addEventListener('click', (e) => {
+            aiEnhancementEnabled = !aiEnhancementEnabled;
+            if (aiEnhancementEnabled) {
+                e.target.classList.add('active');
+            } else {
+                e.target.classList.remove('active');
+            }
+        });
+
+        // 暂停按钮事件监听器
+        const pauseButton = document.getElementById('pause-button');
+        pauseButton.addEventListener('click', () => {
+            isPaused = !isPaused;
+            if (isPaused) {
+                pauseButton.textContent = '继续';
+                pauseButton.classList.add('paused');
+            } else {
+                pauseButton.textContent = '暂停';
+                pauseButton.classList.remove('paused');
+            }
+        });
+
+        // 显示事件通知弹窗
+        function showEventNotification(eventObj, triggeredBy) {
+            // 移除现有的通知
+            const existingNotification = document.querySelector('.event-notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            // 创建新的通知元素
+            const notification = document.createElement('div');
+            notification.className = `event-notification ${eventObj.typeData.type}`;
+            
+            const triggerText = triggeredBy === 'player' ? '玩家触发' : '电脑触发';
+            
+            notification.innerHTML = `
+                <div class="event-trigger">${triggerText}</div>
+                <div class="event-title">${eventObj.typeData.name}</div>
+                <div class="event-description">${eventObj.typeData.description}</div>
+            `;
+
+            // 添加到页面
+            document.body.appendChild(notification);
+
+            // 触发显示动画
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+
+            // 3秒后自动隐藏
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 500);
+            }, 3000);
+        }
+
+        // 显示死球检测通知
+        function showDeadBallNotification() {
+            // 移除现有的通知
+            const existingNotification = document.querySelector('.event-notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            // 创建新的通知元素
+            const notification = document.createElement('div');
+            notification.className = 'event-notification negative';
+
+            notification.innerHTML = `
+                <div class="event-trigger">系统检测</div>
+                <div class="event-title">卡球检测被触发</div>
+                <div class="event-description">检测到边线死球bug，重新发球</div>
+            `;
+
+            // 添加到页面
+            document.body.appendChild(notification);
+
+            // 触发显示动画
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+
+            // 3秒后自动隐藏
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 500);
+            }, 3000);
+        }
+
+        // 死球检测函数
+        function checkDeadBall() {
+            const currentTime = Date.now();
+
+            // 每100ms检查一次
+            if (currentTime - ballStuckDetection.lastCheckTime < ballStuckDetection.checkInterval) {
+                return false;
+            }
+
+            ballStuckDetection.lastCheckTime = currentTime;
+
+            // 检查球是否在上下边缘附近
+            const isNearTopEdge = ball.y <= ballStuckDetection.edgeThreshold;
+            const isNearBottomEdge = ball.y >= (canvas.height - ballStuckDetection.edgeThreshold);
+
+            if (isNearTopEdge || isNearBottomEdge) {
+                // 检查球的Y坐标是否在很小范围内变化（表示卡住了）
+                const yDifference = Math.abs(ball.y - ballStuckDetection.lastY);
+
+                if (yDifference < 5) { // Y坐标变化小于5像素
+                    ballStuckDetection.stuckTime += ballStuckDetection.checkInterval;
+
+                    // 如果卡住时间超过阈值，触发死球检测
+                    if (ballStuckDetection.stuckTime >= ballStuckDetection.stuckThreshold) {
+                        return true;
+                    }
+                } else {
+                    // 球在移动，重置卡住时间
+                    ballStuckDetection.stuckTime = 0;
+                }
+            } else {
+                // 球不在边缘，重置卡住时间
+                ballStuckDetection.stuckTime = 0;
+            }
+
+            ballStuckDetection.lastY = ball.y;
+            return false;
+        }
+
+        // 重置游戏
+        function resetGame() {
+            playerScore = 0;
+            computerScore = 0;
+            playerScoreElement.textContent = '0';
+            computerScoreElement.textContent = '0';
+            victoryOverlay.style.opacity = '0';
+            victoryOverlay.style.pointerEvents = 'none';
+            isGameOver = false;
+            gameTime = 0;
+            nextObstacleTime = 20000;
+            nextEventTime = 10000;
+            obstacles.length = 0;
+            events.length = 0;
+            lastTouchedBy = null;
+
+            // 重置电脑名称
+            document.getElementById('computer-player-name').textContent = '电脑';
+
+            // 重置死球检测
+            ballStuckDetection.lastY = 0;
+            ballStuckDetection.stuckTime = 0;
+            ballStuckDetection.lastCheckTime = 0;
+            
+            // 移除所有事件通知
+            const notifications = document.querySelectorAll('.event-notification');
+            notifications.forEach(notification => notification.remove());
+            
+            // 重置挡板状态
+            player.height = player.originalHeight;
+            player.glowEffect = false;
+            player.glowEndTime = 0;
+            player.rgbEffect = false; // 重置rgb效果
+            player.rgbEndTime = 0; // 重置rgb效果结束时间
+            computer.height = computer.originalHeight;
+            computer.glowEffect = false;
+            computer.glowEndTime = 0;
+            computer.speedMultiplier = 1.0;
+            computer.rgbEffect = false; // 重置rgb效果
+            computer.rgbEndTime = 0; // 重置rgb效果结束时间
+            
+            // 重置球状态
+            ball.alpha = 1.0;
+            ball.speedMultiplier = 1.0;
+            ball.radius = 12; // 重置球的半径
+            
+            // 重置全局效果
+            globalEffects.speedVariation.active = false;
+            globalEffects.obstacleSpeedUp.active = false;
+            globalEffects.thunderCloud.active = false;
+            // 重置新增效果
+            globalEffects.immortalTotem.active = false;
+            globalEffects.immortalTotem.triggeredBy = null;
+            globalEffects.eventFrenzy.active = false;
+            globalEffects.heavenMaker.active = false;
+            globalEffects.heavenMaker.stackCount = 0;
+            globalEffects.heavyBall.active = false;
+            globalEffects.heavyBall.stackCount = 0;
+
+            const computerNameElement = document.getElementById('computer-player-name');
+            const selectedDifficultyOption = document.querySelector('.difficulty-option.active');
+            computerNameElement.textContent = selectedDifficultyOption.textContent;
+            
+            resetBall();
+        }
+
+<!--        // 在 resetGame() 函数之后添加此代码（大约在代码的 1650 行左右）-->
+<!--        function testThunderCloud() {-->
+<!--            globalEffects.immortalTotem.active = true;-->
+<!--            globalEffects.immortalTotem.endTime = Date.now() + 30000; // 持续30秒-->
+<!--            globalEffects.immortalTotem.triggeredBy = "player";-->
+<!--            player.rgbEffect = true; // 使用rgbEffect而不是glowEffect-->
+<!--            player.rgbEndTime = Date.now() + 30000;-->
+<!--            globalEffects.thunderCloud.flashTime = Date.now() + 1000; // 1秒后第一次闪电-->
+<!--        }-->
+
+<!--        // 然后调用测试函数（大约在代码的 2400 行左右）-->
+<!--        testThunderCloud(); // 在游戏初始化后调用-->
+
+        // 碰撞粒子效果
+        function createParticles(x, y, color, count = 15) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    radius: Math.random() * 3 + 1,
+                    color: color,
+                    speed: Math.random() * 3 + 2,
+                    angle: Math.random() * Math.PI * 2,
+                    life: 30
+                });
+            }
+        }
+
+        // 创建得分特效
+        function createScoreEffect(isPlayer) {
+            const scoreEffect = document.createElement('div');
+            scoreEffect.className = 'score-animation';
+            scoreEffect.textContent = '+1';
+
+            const statsContainer = isPlayer ?
+                playerScoreElement.parentElement :
+                computerScoreElement.parentElement;
+
+            statsContainer.appendChild(scoreEffect);
+
+            // 动画结束后移除元素
+            setTimeout(() => {
+                scoreEffect.remove();
+            }, 1000);
+        }
+
+        // 创建事件
+        function createEvent() {
+            // 在中间90%区域生成事件
+            const minX = canvas.width * 0.05;
+            const maxX = canvas.width * 0.95;
+            const minY = canvas.height * 0.05;
+            const maxY = canvas.height * 0.95;
+
+            const x = minX + Math.random() * (maxX - minX);
+            const y = minY + Math.random() * (maxY - minY);
+
+            // 随机选择事件类型
+            const eventTypeKeys = Object.keys(eventTypes);
+            const randomEventType = eventTypeKeys[Math.floor(Math.random() * eventTypeKeys.length)];
+            const eventType = eventTypes[randomEventType];
+
+            events.push({
+                x: x,
+                y: y,
+                radius: 15,
+                type: randomEventType,
+                typeData: eventType,
+                spawnTime: Date.now(),
+                duration: 20000, // 20秒后消失
+                pulsePhase: 0
+            });
+        }
+
+        // 触发事件效果
+        function triggerEvent(eventObj, triggeredBy) {
+            const currentTime = Date.now();
+            
+            // 显示事件通知
+            showEventNotification(eventObj, triggeredBy);
+            
+            switch (eventObj.type) {
+                case 'PADDLE_GROW':
+                    if (triggeredBy === 'player') {
+                        player.height = Math.min(player.height * 1.2, canvas.height * 0.8);
+                        player.glowEndTime = Math.max(player.glowEndTime, currentTime + 20000);
+                    } else {
+                        computer.height = Math.min(computer.height * 1.2, canvas.height * 0.8);
+                        computer.glowEndTime = Math.max(computer.glowEndTime, currentTime + 20000);
+                    }
+                    break;
+                    
+                case 'LIGHTNING_PADDLE':
+                    if (triggeredBy === 'player') {
+                        player.glowEffect = true;
+                        player.glowEndTime = Math.max(player.glowEndTime, currentTime + 20000);
+                    } else {
+                        computer.glowEffect = true;
+                        computer.glowEndTime = Math.max(computer.glowEndTime, currentTime + 20000);
+                    }
+                    break;
+                    
+                case 'SLOW_COMPUTER':
+                    // 这个事件只对玩家有用，但电脑也可以触发（只是没有效果）
+                    if (triggeredBy === 'player') {
+                        computer.speedMultiplier = Math.max(computer.speedMultiplier * 0.8, 0.1);
+                    }
+                    break;
+                    
+                case 'SPEED_VARIATION':
+                    globalEffects.speedVariation.active = true;
+                    globalEffects.speedVariation.endTime = Math.max(
+                        globalEffects.speedVariation.endTime, 
+                        currentTime + 15000
+                    );
+                    break;
+                    
+                case 'OBSTACLE_RUSH':
+                    if (!globalEffects.obstacleSpeedUp.active) {
+                        globalEffects.obstacleSpeedUp.originalInterval = nextObstacleTime - gameTime;
+                    }
+                    globalEffects.obstacleSpeedUp.active = true;
+                    globalEffects.obstacleSpeedUp.endTime = Math.max(
+                        globalEffects.obstacleSpeedUp.endTime,
+                        currentTime + 30000
+                    );
+                    break;
+                    
+                case 'SPEED_RESET':
+                    ball.speed = 4;
+                    ball.speedMultiplier = 1.0;
+                    break;
+                    
+                case 'THUNDER_CLOUD':
+                    globalEffects.thunderCloud.active = true;
+                    globalEffects.thunderCloud.endTime = Math.max(
+                        globalEffects.thunderCloud.endTime,
+                        currentTime + 30000
+                    );
+                    break;
+                    
+                case 'PADDLE_SHRINK':
+                    if (triggeredBy === 'player') {
+                        player.height = Math.max(player.height * 0.8, 40);
+                        player.glowEndTime = Math.max(player.glowEndTime, currentTime + 20000);
+                    } else {
+                        computer.height = Math.max(computer.height * 0.8, 40);
+                        computer.glowEndTime = Math.max(computer.glowEndTime, currentTime + 20000);
+                    }
+                    break;
+                    
+                case 'BALL_FADE':
+                    ball.alpha = Math.min(ball.alpha, 0.1);
+                    // 这里需要一个计时器来恢复透明度
+                    setTimeout(() => {
+                        ball.alpha = Math.min(ball.alpha + 0.9, 1.0);
+                    }, 15000);
+                    break;
+                    
+                // 新增事件处理
+                case 'IMMORTAL_TOTEM':
+                    // 不死图腾效果，不可叠加
+                    if (!globalEffects.immortalTotem.active) {
+                        globalEffects.immortalTotem.active = true;
+                        globalEffects.immortalTotem.endTime = currentTime + 45000; // 45秒
+                        globalEffects.immortalTotem.triggeredBy = triggeredBy;
+
+                        // 为触发方添加RGB变色效果
+                        if (triggeredBy === 'player') {
+                            player.rgbEffect = true; // 使用rgbEffect而不是glowEffect
+                            player.rgbEndTime = currentTime + 45000;
+                        } else {
+                            computer.rgbEffect = true; // 使用rgbEffect而不是glowEffect
+                            computer.rgbEndTime = currentTime + 45000;
+                        }
+                    }
+                    break;
+
+                case 'EVENT_FRENZY':
+                    // 事件狂潮效果，不可叠加
+                    if (!globalEffects.eventFrenzy.active) {
+                        globalEffects.eventFrenzy.active = true;
+                        globalEffects.eventFrenzy.endTime = currentTime + 30000; // 30秒
+                        globalEffects.eventFrenzy.originalEventInterval = nextEventTime - gameTime;
+                    }
+                    break;
+                    
+                case 'HEAVEN_MAKER':
+                    // 天堂制造效果，可叠加
+                    if (!globalEffects.heavenMaker.active) {
+                        globalEffects.heavenMaker.active = true;
+                        globalEffects.heavenMaker.endTime = currentTime + 25000; // 25秒
+                        globalEffects.heavenMaker.stackCount = 1;
+                    } else {
+                        // 叠加效果，延长时间并增加叠加次数
+                        globalEffects.heavenMaker.endTime = Math.max(globalEffects.heavenMaker.endTime, currentTime + 25000);
+                        globalEffects.heavenMaker.stackCount++;
+                    }
+                    // 应用效果：球变小，速度变快
+                    ball.radius = Math.max(ball.radius * 0.5, 3); // 最小半径3像素
+                    ball.speedMultiplier *= 1.25;
+                    break;
+                    
+                case 'HEAVY_BALL':
+                    // 沉重效果，可叠加
+                    if (!globalEffects.heavyBall.active) {
+                        globalEffects.heavyBall.active = true;
+                        globalEffects.heavyBall.endTime = currentTime + 25000; // 25秒
+                        globalEffects.heavyBall.stackCount = 1;
+                    } else {
+                        // 叠加效果，延长时间并增加叠加次数
+                        globalEffects.heavyBall.endTime = Math.max(globalEffects.heavyBall.endTime, currentTime + 25000);
+                        globalEffects.heavyBall.stackCount++;
+                    }
+                    // 应用效果：球变大，速度变慢
+                    ball.radius = Math.min(ball.radius * 2, 50); // 最大半径50像素
+                    ball.speedMultiplier *= 0.8;
+                    break;
+            }
+            
+            // 创建事件触发粒子效果
+            createParticles(eventObj.x, eventObj.y, eventObj.typeData.color, 25);
+        }
+
+        // 创建障碍物
+        function createObstacles() {
+            // 确保障碍物在中间75%区域生成
+            const minX = canvas.width * 0.125; // 12.5% 左边距
+            const maxX = canvas.width * 0.875; // 87.5% 右边距
+            const minY = canvas.height * 0.125; // 12.5% 上边距
+            const maxY = canvas.height * 0.875; // 87.5% 下边距
+
+            // 随机位置
+            const x = minX + Math.random() * (maxX - minX);
+            const y = minY + Math.random() * (maxY - minY);
+
+            // 随机大小 (20-40像素)
+            const size = 20 + Math.random() * 20;
+
+            // 随机形状 (圆形或方形)
+            const type = Math.random() > 0.5 ? 'circle' : 'rect';
+
+            // 随机存在时间 (8-20秒)
+            const duration = 8000 + Math.random() * 12000;
+
+            // 预警时间 (1秒)
+            const warningTime = 1000;
+
+            // 随机选择对称模式 (1, 2, 3, 5, 9, 0, 4, 0个障碍物)
+            const symmetryMode = Math.floor(Math.random() * 8); // 0-7
+
+            // 障碍物位置数组
+            const positions = [];
+
+            // 中心点
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            // 根据对称模式生成障碍物位置（放射性轴对称）
+            switch (symmetryMode) {
+                case 0: // 1个障碍物（中心）
+                    positions.push({x: centerX, y: centerY});
+                    break;
+
+                case 1: // 2个障碍物（放射性轴对称）
+                    positions.push({x: x, y: y});
+                    positions.push({x: 2 * centerX - x, y: 2 * centerY - y});
+                    break;
+
+                case 2: // 3个障碍物（放射性轴对称）
+                    positions.push({x: centerX, y: centerY});
+                    positions.push({x: x, y: y});
+                    positions.push({x: 2 * centerX - x, y: 2 * centerY - y});
+                    break;
+
+                case 3: // 5个障碍物（放射性轴对称）
+                    positions.push({x: centerX, y: centerY});
+                    positions.push({x: x, y: y});
+                    positions.push({x: 2 * centerX - x, y: 2 * centerY - y});
+                    positions.push({x: x, y: 2 * centerY - y});
+                    positions.push({x: 2 * centerX - x, y: y});
+                    break;
+
+                case 4: // 9个障碍物（放射性轴对称）
+                    positions.push({x: centerX, y: centerY});
+                    positions.push({x: x, y: y});
+                    positions.push({x: 2 * centerX - x, y: 2 * centerY - y});
+                    positions.push({x: x, y: 2 * centerY - y});
+                    positions.push({x: 2 * centerX - x, y: y});
+                    positions.push({x: centerX, y: 2 * centerY - y});
+                    positions.push({x: 2 * centerX - x, y: centerY});
+                    positions.push({x: x, y: centerY});
+                    positions.push({x: centerX, y: y});
+                    break;
+
+                case 5: // None
+                    break;
+
+                case 6: // 4个障碍物（补）
+                    positions.push({x: x, y: y});
+                    positions.push({x: 2 * centerX - x, y: 2 * centerY - y});
+                    positions.push({x: x, y: 2 * centerY - y});
+                    positions.push({x: 2 * centerX - x, y: y});
+                    break;
+
+                case 7: //None
+                    break;
+            }
+
+            // 创建障碍物
+            for (const pos of positions) {
+                obstacles.push({
+                    x: pos.x,
+                    y: pos.y,
+                    size: size,
+                    type: type,
+                    warningTime: warningTime,
+                    warningProgress: 0,
+                    duration: duration,
+                    active: false,
+                    spawnTime: Date.now()
+                });
+            }
+        }
+
+        // 更新障碍物状态
+        function updateObstacles() {
+            const now = Date.now();
+
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                const obs = obstacles[i];
+
+                // 更新预警进度
+                if (!obs.active) {
+                    const elapsed = now - obs.spawnTime;
+                    obs.warningProgress = Math.min(1, elapsed / obs.warningTime);
+
+                    // 如果预警时间结束，激活障碍物
+                    if (elapsed >= obs.warningTime) {
+                        obs.active = true;
+                        obs.activateTime = now;
+                    }
+                }
+
+                // 检查是否应该移除障碍物
+                if (obs.active && now - obs.activateTime >= obs.duration) {
+                    obstacles.splice(i, 1);
+                }
+            }
+        }
+
+        // 更新事件状态
+        function updateEvents() {
+            const now = Date.now();
+
+            for (let i = events.length - 1; i >= 0; i--) {
+                const event = events[i];
+                
+                // 更新脉冲动画
+                event.pulsePhase += 0.1;
+                
+                // 检查是否应该移除事件
+                if (now - event.spawnTime >= event.duration) {
+                    events.splice(i, 1);
+                }
+            }
+        }
+
+        // 更新全局效果
+        function updateGlobalEffects() {
+            const now = Date.now();
+            
+            // 速度变化效果
+            if (globalEffects.speedVariation.active) {
+                if (now > globalEffects.speedVariation.endTime) {
+                    globalEffects.speedVariation.active = false;
+                    ball.speedMultiplier = 1.0;
+                } else {
+                    // 在70%-130%之间变动
+                    ball.speedMultiplier = 0.7 + 0.6 * (0.5 + 0.5 * Math.sin(now * 0.01));
+                }
+            }
+            
+            // 障碍物加速效果
+            if (globalEffects.obstacleSpeedUp.active) {
+                if (now > globalEffects.obstacleSpeedUp.endTime) {
+                    globalEffects.obstacleSpeedUp.active = false;
+                }
+            }
+            
+            // 雷云效果
+            if (globalEffects.thunderCloud.active) {
+                if (now > globalEffects.thunderCloud.endTime) {
+                    globalEffects.thunderCloud.active = false;
+                } else {
+                    // 更新闪电时间
+                    if (now > globalEffects.thunderCloud.flashTime) {
+                        globalEffects.thunderCloud.flashTime = now + 1000 + Math.random() * 2000;
+                    }
+                }
+            }
+            
+            // 新增效果更新
+            // 不死图腾效果
+            if (globalEffects.immortalTotem.active) {
+                if (now > globalEffects.immortalTotem.endTime) {
+                    globalEffects.immortalTotem.active = false;
+                    globalEffects.immortalTotem.triggeredBy = null;
+                    
+                    // 结束RGB变色效果
+                    const triggeredBy = globalEffects.immortalTotem.triggeredBy;
+                    if (triggeredBy === 'player') {
+                        player.glowEffect = false;
+                        player.glowEndTime = 0;
+                    } else if (triggeredBy === 'computer') {
+                        computer.glowEffect = false;
+                        computer.glowEndTime = 0;
+                    }
+                }
+            }
+            
+            // 事件狂潮效果
+            if (globalEffects.eventFrenzy.active) {
+                if (now > globalEffects.eventFrenzy.endTime) {
+                    globalEffects.eventFrenzy.active = false;
+                }
+            }
+            
+            // 天堂制造效果
+            if (globalEffects.heavenMaker.active) {
+                if (now > globalEffects.heavenMaker.endTime) {
+                    // 恢复球的大小和速度
+                    for (let i = 0; i < globalEffects.heavenMaker.stackCount; i++) {
+                        ball.radius = Math.min(ball.radius * 2, 50); // 恢复大小
+                        ball.speedMultiplier /= 1.25; // 恢复速度
+                    }
+                    globalEffects.heavenMaker.active = false;
+                    globalEffects.heavenMaker.stackCount = 0;
+                }
+            }
+            
+            // 沉重效果
+            if (globalEffects.heavyBall.active) {
+                if (now > globalEffects.heavyBall.endTime) {
+                    // 恢复球的大小和速度
+                    for (let i = 0; i < globalEffects.heavyBall.stackCount; i++) {
+                        ball.radius = Math.max(ball.radius * 0.5, 3); // 恢复大小
+                        ball.speedMultiplier /= 0.8; // 恢复速度
+                    }
+                    globalEffects.heavyBall.active = false;
+                    globalEffects.heavyBall.stackCount = 0;
+                }
+            }
+            
+            // 更新挡板效果
+            if (now > player.glowEndTime) {
+                player.glowEffect = false;
+                if (player.height !== player.originalHeight) {
+                    player.height = player.originalHeight;
+                }
+            }
+            
+            if (now > computer.glowEndTime) {
+                computer.glowEffect = false;
+                if (computer.height !== computer.originalHeight) {
+                    computer.height = computer.originalHeight;
+                }
+            }
+
+            // 添加rgb效果更新
+            if (now > player.rgbEndTime) {
+                player.rgbEffect = false;
+            }
+
+            if (now > computer.rgbEndTime) {
+                computer.rgbEffect = false;
+            }
+        }
+
+        // 绘制圆形（用于球和粒子）
+        function drawCircle(x, y, radius, color, alpha = 1.0) {
+            ctx.save();
+            ctx.globalAlpha = alpha;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2, false);
+
+            // 添加发光效果
+            const gradient = ctx.createRadialGradient(
+                x, y, 0,
+                x, y, radius
+            );
+            gradient.addColorStop(0, color);
+            gradient.addColorStop(1, 'rgba(101, 80, 255, 0)');
+
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            ctx.closePath();
+            ctx.restore();
+        }
+
+        // 绘制挡板
+        function drawPaddle(x, y, width, height, color, glowEffect = false, rgbEffect = false) {
+            if (rgbEffect) {
+                // 使用RGB效果绘制挡板
+                drawPaddleRGB(x, y, width, height);
+                return;
+            }
+
+            ctx.save();
+            
+            // 如果有发光效果，先绘制发光
+            if (glowEffect) {
+                ctx.shadowColor = '#ffff00';
+                ctx.shadowBlur = 20;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+            }
+            
+            ctx.beginPath();
+            ctx.rect(x, y, width, height);
+
+            // 创建渐变效果
+            const gradient = ctx.createLinearGradient(x, y, x + width, y);
+            gradient.addColorStop(0, color);
+            gradient.addColorStop(1, glowEffect ? '#ffff88' : '#a0a8ff');
+
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            ctx.closePath();
+
+            // 添加边框发光
+            ctx.beginPath();
+            ctx.rect(x - 2, y - 2, width + 4, height + 4);
+            ctx.strokeStyle = glowEffect ? 'rgba(255, 255, 0, 0.8)' : 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = glowEffect ? 2 : 1;
+            ctx.stroke();
+            ctx.closePath();
+            
+            ctx.restore();
+        }
+
+        // 绘制RGB挡板效果
+        function drawPaddleRGB(x, y, width, height) {
+            ctx.save();
+
+            // 创建随时间变化的RGB效果
+            const hue = (Date.now() / 5) % 360;
+            const color1 = `hsl(${hue}, 100%, 60%)`;
+            const color2 = `hsl(${(hue + 120) % 360}, 100%, 60%)`;
+            const color3 = `hsl(${(hue + 240) % 360}, 100%, 60%)`;
+
+            // 创建三色渐变
+            const gradient = ctx.createLinearGradient(x, y, x + width, y + height);
+            gradient.addColorStop(0, color1);
+            gradient.addColorStop(0.5, color2);
+            gradient.addColorStop(1, color3);
+
+            // 绘制挡板主体
+            ctx.fillStyle = gradient;
+            ctx.fillRect(x, y, width, height);
+
+            // 添加发光边框
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.shadowColor = '#ffffff';
+            ctx.shadowBlur = 15;
+            ctx.strokeRect(x - 2, y - 2, width + 4, height + 4);
+
+            ctx.restore();
+        }
+
+        // 绘制球轨迹
+        function drawBallTrail() {
+            for (let i = 0; i < ball.trail.length; i++) {
+                const alpha = (i / ball.trail.length) * ball.alpha;
+                const radius = ball.radius * alpha;
+
+                ctx.save();
+                ctx.globalAlpha = alpha * 0.6;
+                ctx.beginPath();
+                ctx.arc(ball.trail[i].x, ball.trail[i].y, radius, 0, Math.PI * 2);
+                ctx.fillStyle = ball.color;
+                ctx.fill();
+                ctx.closePath();
+                ctx.restore();
+            }
+        }
+
+        // 绘制网格背景
+        function drawGrid() {
+            const gridSize = 30;
+            ctx.strokeStyle = 'rgba(101, 80, 255, 0.1)';
+            ctx.lineWidth = 1;
+
+            // 垂直线
+            for (let x = 0; x < canvas.width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+
+            // 水平线
+            for (let y = 0; y < canvas.height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        // 绘制粒子
+        function drawParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+
+                // 更新粒子位置
+                p.x += Math.cos(p.angle) * p.speed;
+                p.y += Math.sin(p.angle) * p.speed;
+                p.life--;
+
+                // 绘制粒子
+                ctx.save();
+                ctx.globalAlpha = p.life / 30;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+                ctx.closePath();
+                ctx.restore();
+
+                // 移除死亡粒子
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        // 绘制障碍物
+        function drawObstacles() {
+            for (const obs of obstacles) {
+                if (!obs.active) {
+                    // 绘制预警效果
+                    const warningSize = obs.size * (1 + obs.warningProgress * 0.5);
+                    const alpha = 0.3 + obs.warningProgress * 0.4;
+
+                    ctx.save();
+                    ctx.globalAlpha = alpha;
+                    ctx.beginPath();
+                    if (obs.type === 'circle') {
+                        ctx.arc(obs.x, obs.y, warningSize, 0, Math.PI * 2);
+                    } else {
+                        ctx.rect(
+                            obs.x - warningSize / 2,
+                            obs.y - warningSize / 2,
+                            warningSize,
+                            warningSize
+                        );
+                    }
+
+                    ctx.fillStyle = 'rgba(255, 100, 100, 1)';
+                    ctx.fill();
+                    ctx.closePath();
+                    ctx.restore();
+                } else {
+                    // 绘制激活的障碍物
+                    ctx.beginPath();
+
+                    if (obs.type === 'circle') {
+                        ctx.arc(obs.x, obs.y, obs.size, 0, Math.PI * 2);
+                    } else {
+                        ctx.rect(
+                            obs.x - obs.size / 2,
+                            obs.y - obs.size / 2,
+                            obs.size,
+                            obs.size
+                        );
+                    }
+
+                    // 创建渐变填充
+                    const gradient = ctx.createRadialGradient(
+                        obs.x, obs.y, 0,
+                        obs.x, obs.y, obs.size
+                    );
+                    gradient.addColorStop(0, 'rgba(255, 80, 80, 0.8)');
+                    gradient.addColorStop(1, 'rgba(200, 50, 50, 0.4)');
+
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+
+                    // 添加发光边框
+                    ctx.strokeStyle = 'rgba(255, 150, 150, 0.7)';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    ctx.closePath();
+                }
+            }
+        }
+
+        // 绘制事件
+        function drawEvents() {
+            for (const event of events) {
+                const pulseSize = event.radius * (1 + 0.3 * Math.sin(event.pulsePhase));
+                const alpha = 0.8 + 0.2 * Math.sin(event.pulsePhase * 2);
+                
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                
+                // 绘制外圈发光
+                ctx.beginPath();
+                ctx.arc(event.x, event.y, pulseSize * 1.5, 0, Math.PI * 2);
+                ctx.fillStyle = event.typeData.color + '40'; // 添加透明度
+                ctx.fill();
+                ctx.closePath();
+                
+                // 绘制主体
+                ctx.beginPath();
+                ctx.arc(event.x, event.y, pulseSize, 0, Math.PI * 2);
+                ctx.fillStyle = event.typeData.color;
+                ctx.fill();
+                ctx.closePath();
+                
+                // 绘制边框
+                ctx.beginPath();
+                ctx.arc(event.x, event.y, pulseSize, 0, Math.PI * 2);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.closePath();
+                
+                ctx.restore();
+            }
+        }
+
+        // 绘制雷云
+        function drawThunderCloud() {
+            if (!globalEffects.thunderCloud.active) return;
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const cloudWidth = canvas.width * 0.45;
+            const cloudHeight = canvas.height * 0.45;
+
+            ctx.save();
+
+            // 初始化状态（确保多次调用状态一致）
+            if (!globalEffects.thunderCloud.particles) {
+                globalEffects.thunderCloud.particles = [];
+                globalEffects.thunderCloud.dataStreams = [];
+                globalEffects.thunderCloud.lastUpdate = Date.now();
+            }
+
+            // 更新时间状态
+            const now = Date.now();
+            const deltaTime = now - (globalEffects.thunderCloud.lastUpdate || now);
+            globalEffects.thunderCloud.lastUpdate = now;
+
+            // 更新数据流粒子
+            updateDataStreams(centerX, centerY, cloudWidth, cloudHeight, deltaTime);
+
+            // 绘制动态云朵（使用多个叠加圆形）
+            drawDynamicCloud(centerX, centerY, cloudWidth, cloudHeight);
+
+            // 绘制数据流（黑客风格绿色代码）
+            drawHackerDataStreams();
+
+            // 闪电效果（带随机分支）
+            const flashActive = now < globalEffects.thunderCloud.flashTime;
+            if (flashActive) {
+                drawLightningBranches(centerX, centerY, cloudWidth, cloudHeight);
+            }
+
+            ctx.restore();
+        }
+
+        // 辅助函数定义
+        function updateDataStreams(centerX, centerY, cloudWidth, cloudHeight, deltaTime) {
+            const sec = deltaTime / 1000;
+
+            // 添加新粒子 - 修改以下参数
+            if (globalEffects.thunderCloud.dataStreams.length < 30 && Math.random() > 0.7) {
+                globalEffects.thunderCloud.dataStreams.push({
+                    x: centerX + (Math.random() - 0.5) * cloudWidth,
+                    y: centerY - cloudHeight * 0.6, // 从更上方开始（原来是 - cloudHeight/2）
+                    chars: generateRandomBinary(3 + Math.floor(Math.random() * 4)), // 缩短数据流长度（3-6个字符）
+                    speed: 50 + Math.random() * 50, // 加快速度（50-100）
+                    alpha: 0.1 + Math.random() * 0.4, // 降低透明度（0.1-0.5）
+                    life: 1 + Math.random() * 1.5 // 更快消失（1-2.5秒）
+                });
+            }
+
+            // 更新现有粒子
+            globalEffects.thunderCloud.dataStreams.forEach((stream, index) => {
+                stream.y += stream.speed * sec;
+                stream.life -= sec;
+
+                // 移除屏幕外或生命周期结束的粒子
+                if (stream.y > centerY + cloudHeight || stream.life <= 0) {
+                    globalEffects.thunderCloud.dataStreams.splice(index, 1);
+                }
+            });
+        }
+
+        function drawDynamicCloud(centerX, centerY, cloudWidth, cloudHeight) {
+            ctx.globalAlpha = 0.3;
+
+            // 创建多层云朵效果
+            for (let i = 0; i < 15; i++) {
+                const radius = cloudWidth * 0.1 + Math.random() * cloudWidth * 0.1;
+                const x = centerX + (Math.random() - 0.5) * cloudWidth * 0.8;
+                const y = centerY + (Math.random() - 0.5) * cloudHeight * 0.8;
+
+                const gradient = ctx.createRadialGradient(
+                    x, y, 0,
+                    x, y, radius
+                );
+
+                // 赛博朋克风格渐变
+                gradient.addColorStop(0, 'rgba(0, 100, 50, 0.6)');
+                gradient.addColorStop(1, 'rgba(0, 20, 10, 0.1)');
+
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            }
+        }
+
+        function drawHackerDataStreams() {
+            ctx.font = '10px "Courier New", monospace';
+            ctx.textAlign = 'left';
+
+            globalEffects.thunderCloud.dataStreams.forEach(stream => {
+                ctx.save();
+                ctx.globalAlpha = stream.alpha;
+                ctx.fillStyle = '#00FF66';
+
+                // 绘制二进制数据流
+                stream.chars.split('').forEach((char, i) => {
+                    ctx.fillText(char, stream.x, stream.y + i * 12);
+                });
+
+                ctx.restore();
+            });
+        }
+
+        function drawLightningBranches(centerX, centerY, cloudWidth, cloudHeight) {
+            ctx.globalAlpha = 0.6;
+
+            // 生成主闪电路径
+            const path = generateLightningPath(
+                centerX + (Math.random() - 0.5) * cloudWidth * 0.5,
+                centerY - cloudHeight * 0.4,
+                centerX + (Math.random() - 0.5) * cloudWidth * 0.5,
+                centerY + cloudHeight * 0.4
+            );
+
+            // 绘制主闪电
+            drawLightning(path, 3);
+
+            // 生成分支闪电（1-3个）
+            const branchCount = 1 + Math.floor(Math.random() * 3);
+            for (let i = 0; i < branchCount; i++) {
+                const branchPoint = path[Math.floor(path.length * (i + 1) / (branchCount + 1))];
+                const branchPath = generateLightningPath(
+                    branchPoint.x,
+                    branchPoint.y,
+                    branchPoint.x + (Math.random() - 0.5) * cloudWidth * 0.3,
+                    branchPoint.y + cloudHeight * 0.2
+                );
+                drawLightning(branchPath, 2);
+            }
+        }
+
+        function generateLightningPath(startX, startY, endX, endY) {
+            const segments = 8;
+            const path = [{x: startX, y: startY}];
+            const variance = canvas.width * 0.05;
+
+            for (let i = 1; i <= segments; i++) {
+                const t = i / segments;
+                const baseX = startX + (endX - startX) * t;
+                const baseY = startY + (endY - startY) * t;
+
+                path.push({
+                    x: baseX + (Math.random() - 0.5) * variance * (1 - t),
+                    y: baseY + (Math.random() - 0.5) * variance * (1 - t)
+                });
+            }
+
+            path.push({x: endX, y: endY});
+            return path;
+        }
+
+        function drawLightning(path, lineWidth) {
+            ctx.beginPath();
+            ctx.moveTo(path[0].x, path[0].y);
+
+            // 创建闪电抖动效果
+            for (let i = 1; i < path.length; i++) {
+                ctx.lineTo(path[i].x, path[i].y);
+            }
+
+            // 赛博朋克风格发光效果
+            ctx.strokeStyle = '#66FFFF';
+            ctx.lineWidth = lineWidth;
+            ctx.shadowColor = '#00FF99';
+            ctx.shadowBlur = 15;
+            ctx.stroke();
+
+            // 重置阴影
+            ctx.shadowBlur = 0;
+        }
+
+        function generateRandomBinary(length) {
+            return Array.from({length}, () => Math.random() > 0.5 ? '1' : '0').join('');
+        }
+
+        // 重置球位置
+        function resetBall() {
+            // 保存原始速度方向
+            const originalVelocityX = ball.velocityX;
+            const originalVelocityY = ball.velocityY;
+
+            // 重置球位置和速度
+            ball.x = canvas.width / 2;
+            ball.y = canvas.height / 2;
+            ball.speed = 4;
+            ball.velocityX = Math.random() > 0.5 ? 5 : -5;
+            ball.velocityY = Math.random() * 4 - 2;
+            ball.trail = [];
+            isResetting = false;
+
+            // 重置死球检测
+            ballStuckDetection.lastY = ball.y;
+            ballStuckDetection.stuckTime = 0;
+            ballStuckDetection.lastCheckTime = Date.now();
+
+            // 防止球在障碍物上重生
+            let safePositionFound = false;
+            let attempts = 0;
+            const maxAttempts = 30;
+            const safeRadius = ball.radius * 2; // 安全距离半径
+
+            while (!safePositionFound && attempts < maxAttempts) {
+                // 方法1：尝试在中心附近随机位置生成
+                if (attempts < 20) {
+                    ball.x = canvas.width / 2 + (Math.random() - 0.5) * (canvas.width / 4);
+                    ball.y = canvas.height / 2 + (Math.random() - 0.5) * (canvas.height / 4);
+                }
+                // 方法2：向量叠加调整（前20次失败后启用）
+                else {
+                    let totalDx = 0;
+                    let totalDy = 0;
+                    let collisionCount = 0;
+
+                    for (const obs of obstacles) {
+                        if (obs.active && obstacleCollision(ball, obs)) {
+                            const dx = ball.x - obs.x;
+                            const dy = ball.y - obs.y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            const minDistance = ball.radius + obs.size + safeRadius;
+
+                            if (distance < minDistance) {
+                                const angle = Math.atan2(dy, dx);
+                                const moveDistance = minDistance - distance;
+                                totalDx += moveDistance * Math.cos(angle);
+                                totalDy += moveDistance * Math.sin(angle);
+                                collisionCount++;
+                            }
+                        }
+                    }
+
+                    if (collisionCount > 0) {
+                        // 标准化总位移向量
+                        const totalMove = Math.sqrt(totalDx * totalDx + totalDy * totalDy);
+                        ball.x += (totalDx / collisionCount) * 1.2;
+                        ball.y += (totalDy / collisionCount) * 1.2;
+                    }
+                }
+
+                // 边界检查
+                ball.x = Math.max(ball.radius, Math.min(canvas.width - ball.radius, ball.x));
+                ball.y = Math.max(ball.radius, Math.min(canvas.height - ball.radius, ball.y));
+
+                // 最终碰撞检查
+                safePositionFound = true;
+                for (const obs of obstacles) {
+                    if (obs.active && obstacleCollision(ball, obs)) {
+                        safePositionFound = false;
+                        break;
+                    }
+                }
+
+                attempts++;
+            }
+        }
+
+        // 碰撞检测 - 挡板
+        function collision(b, p) {
+            return (
+                b.x + b.radius > p.x &&
+                b.x - b.radius < p.x + p.width &&
+                b.y + b.radius > p.y &&
+                b.y - b.radius < p.y + p.height
+            );
+        }
+
+        // 碰撞检测 - 障碍物
+        function obstacleCollision(ball, obstacle) {
+            if (!obstacle.active) return false;
+
+            if (obstacle.type === 'circle') {
+                // 圆形障碍物碰撞检测
+                const dx = ball.x - obstacle.x;
+                const dy = ball.y - obstacle.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                return distance < ball.radius + obstacle.size;
+            } else {
+                // 矩形障碍物碰撞检测
+                const halfSize = obstacle.size / 2;
+                const closestX = Math.max(obstacle.x - halfSize, Math.min(ball.x, obstacle.x + halfSize));
+                const closestY = Math.max(obstacle.y - halfSize, Math.min(ball.y, obstacle.y + halfSize));
+
+                const dx = ball.x - closestX;
+                const dy = ball.y - closestY;
+
+                return (dx * dx + dy * dy) < (ball.radius * ball.radius);
+            }
+        }
+
+        // 碰撞检测 - 事件
+        function eventCollision(ball, event) {
+            const dx = ball.x - event.x;
+            const dy = ball.y - event.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            return distance < ball.radius + event.radius;
+        }
+
+        // 处理球与障碍物的碰撞
+        function handleObstacleCollision() {
+            for (const obs of obstacles) {
+                if (obstacleCollision(ball, obs)) {
+                    // 创建碰撞粒子
+                    createParticles(ball.x, ball.y, '#ff6666', 30);
+
+                    if (obs.type === 'circle') {
+                        // 圆形障碍物碰撞反弹
+                        const dx = ball.x - obs.x;
+                        const dy = ball.y - obs.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        // 法线向量
+                        const nx = dx / distance;
+                        const ny = dy / distance;
+
+                        // 计算点积
+                        const dot = ball.velocityX * nx + ball.velocityY * ny;
+
+                        // 反射向量
+                        ball.velocityX = ball.velocityX - 2 * dot * nx;
+                        ball.velocityY = ball.velocityY - 2 * dot * ny;
+                    } else {
+                        // 矩形障碍物碰撞反弹
+                        const halfSize = obs.size / 2;
+
+                        // 计算球相对于障碍物中心的向量
+                        const dx = ball.x - obs.x;
+                        const dy = ball.y - obs.y;
+
+                        // 判断碰撞发生在矩形的哪一侧
+                        if (Math.abs(dx) > Math.abs(dy)) {
+                            // 水平碰撞
+                            ball.velocityX = -ball.velocityX;
+
+                            // 调整位置防止卡住
+                            if (dx > 0) {
+                                ball.x = obs.x + halfSize + ball.radius;
+                            } else {
+                                ball.x = obs.x - halfSize - ball.radius;
+                            }
+                        } else {
+                            // 垂直碰撞
+                            ball.velocityY = -ball.velocityY;
+
+                            // 调整位置防止卡住
+                            if (dy > 0) {
+                                ball.y = obs.y + halfSize + ball.radius;
+                            } else {
+                                ball.y = obs.y - halfSize - ball.radius;
+                            }
+                        }
+                    }
+
+                    // 增加球速
+                    ball.speed += 0.025;
+
+                    // 记录碰撞时间
+                    ball.lastCollision = Date.now();
+
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // 处理球与事件的碰撞
+        function handleEventCollision() {
+            for (let i = events.length - 1; i >= 0; i--) {
+                const event = events[i];
+                if (eventCollision(ball, event)) {
+                    // 触发事件效果
+                    if (lastTouchedBy) {
+                        triggerEvent(event, lastTouchedBy);
+                    }
+                    
+                    // 移除事件
+                    events.splice(i, 1);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // 处理雷云对球的影响
+        function handleThunderCloudEffect() {
+            if (!globalEffects.thunderCloud.active) return;
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const cloudWidth = canvas.width * 0.3;
+            const cloudHeight = canvas.height * 0.3;
+            
+            // 检查球是否在雷云区域内
+            if (ball.x > centerX - cloudWidth / 2 && 
+                ball.x < centerX + cloudWidth / 2 &&
+                ball.y > centerY - cloudHeight / 2 && 
+                ball.y < centerY + cloudHeight / 2) {
+                
+                // 随机改变球的角度 -10到10度
+                const angleChange = (Math.random() - 0.5) * 20 * Math.PI / 180;
+                const currentAngle = Math.atan2(ball.velocityY, ball.velocityX);
+                const newAngle = currentAngle + angleChange;
+                const speed = Math.sqrt(ball.velocityX * ball.velocityX + ball.velocityY * ball.velocityY);
+                
+                ball.velocityX = speed * Math.cos(newAngle);
+                ball.velocityY = speed * Math.sin(newAngle);
+                
+                // 触发闪电效果
+                globalEffects.thunderCloud.flashTime = Date.now() + 200;
+            }
+        }
+
+        // 检查球是否卡在障碍物中，如果是则校正位置
+        function correctBallPosition() {
+            for (const obs of obstacles) {
+                if (!obs.active) continue;
+
+                // 计算球与障碍物的距离和方向
+                const dx = ball.x - obs.x;
+                const dy = ball.y - obs.y;
+
+                if (obs.type === 'circle') {
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const minDistance = ball.radius + obs.size;
+
+                    if (distance < minDistance) {
+                        // 计算需要移动的方向
+                        const angle = Math.atan2(dy, dx);
+                        const moveDistance = minDistance - distance;
+
+                        // 将球移动到障碍物边缘
+                        ball.x += Math.cos(angle) * moveDistance;
+                        ball.y += Math.sin(angle) * moveDistance;
+                    }
+                } else {
+                    // 矩形障碍物处理
+                    const halfSize = obs.size / 2;
+                    const overlapX = Math.abs(dx) - (ball.radius + halfSize);
+                    const overlapY = Math.abs(dy) - (ball.radius + halfSize);
+
+                    if (overlapX < 0 && overlapY < 0) {
+                        // 确定最小重叠方向
+                        if (Math.abs(overlapX) < Math.abs(overlapY)) {
+                            // X轴方向重叠较小，沿X轴移动
+                            ball.x += dx > 0 ? -overlapX : overlapX;
+                        } else {
+                            // Y轴方向重叠较小，沿Y轴移动
+                            ball.y += dy > 0 ? -overlapY : overlapY;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 更新游戏状态
+        function update(dt) {
+            if (isGameOver || isPaused) return; // 添加暂停检查
+
+            // 更新游戏时间（每帧约16ms）
+            gameTime += dt;
+
+            // 死球检测
+            if (checkDeadBall()) {
+                showDeadBallNotification();
+                resetBall();
+                // 重置球但不计分
+                return;
+            }
+
+            // 检查是否需要生成新障碍物
+            let obstacleInterval = 15000; // 默认15秒
+            if (globalEffects.obstacleSpeedUp.active) {
+                obstacleInterval *= 0.2; // 减少到20%
+            }
+
+            if (gameTime >= nextObstacleTime) {
+                createObstacles();
+                nextObstacleTime = gameTime + obstacleInterval + Math.random() * 5000;
+            }
+
+            // 检查是否需要生成新事件
+            if (gameTime >= nextEventTime) {
+                createEvent();
+                // 设置下一次事件出现时间：5-30秒后
+                let eventInterval = 5000 + Math.random() * 25000;
+<!--                let eventInterval = 5000-->
+
+                // 事件狂潮效果：事件刷新率增加为400%
+                if (globalEffects.eventFrenzy.active) {
+                    eventInterval *= 0.25; // 减少到25%，即400%的刷新率
+                }
+
+                nextEventTime = gameTime + eventInterval;
+            }
+
+            // 更新各种状态
+            updateObstacles();
+            updateEvents();
+            updateGlobalEffects();
+
+            // 检查并校正球的位置，防止卡在障碍物中
+            correctBallPosition();
+
+            // 更新球轨迹
+            ball.trail.push({x: ball.x, y: ball.y});
+            if (ball.trail.length > 10) {
+                ball.trail.shift();
+            }
+
+            // 移动球
+            const effectiveSpeed = ball.speed * ball.speedMultiplier;
+            const velocityMagnitude = Math.sqrt(ball.velocityX * ball.velocityX + ball.velocityY * ball.velocityY);
+            ball.x += (ball.velocityX / velocityMagnitude) * effectiveSpeed * (dt / FRAME_INTERVAL);
+            ball.y += (ball.velocityY / velocityMagnitude) * effectiveSpeed * (dt / FRAME_INTERVAL);
+
+            // 简单的电脑AI - 跟随球移动
+            const effectiveComputerSpeed = computer.speed * computer.speedMultiplier;
+            if (computer.y + (computer.height / 2) < ball.y) {
+                computer.y += effectiveComputerSpeed;
+            } else {
+                computer.y -= effectiveComputerSpeed;
+            }
+
+            // 确保电脑挡板不会超出边界
+            if (computer.y < 0) {
+                computer.y = 0;
+            } else if (computer.y + computer.height > canvas.height) {
+                computer.y = canvas.height - computer.height;
+            }
+
+            // 确保玩家挡板不会超出边界
+            if (player.y < 0) {
+                player.y = 0;
+            } else if (player.y + player.height > canvas.height) {
+                player.y = canvas.height - player.height;
+            }
+
+            // 上下边界反弹
+            if (ball.y - ball.radius < 0 || ball.y + ball.radius > canvas.height) {
+                ball.velocityY = -ball.velocityY;
+
+                // 边界碰撞粒子效果
+                createParticles(
+                    ball.x,
+                    ball.y < ball.radius ? 0 : canvas.height,
+                    '#ffffff'
+                );
+            }
+
+            // 处理雷云效果
+            handleThunderCloudEffect();
+
+            // 处理球与事件的碰撞
+            const hitEvent = handleEventCollision();
+
+            // 处理球与障碍物的碰撞
+            const hitObstacle = handleObstacleCollision();
+
+            // 如果没有碰到障碍物或事件，检查挡板碰撞
+            if (!hitObstacle && !hitEvent) {
+                // 确定球与哪个挡板碰撞
+                const paddle = ball.x < canvas.width / 2 ? player : computer;
+                const paddleOwner = ball.x < canvas.width / 2 ? 'player' : 'computer';
+                const currentTime = Date.now();
+
+                // 添加防卡顿机制：同一挡板在50ms内只允许碰撞一次
+                if (collision(ball, paddle) && currentTime - ball.lastCollision > 50) {
+                    // 记录触球者
+                    lastTouchedBy = paddleOwner;
+
+                    // 球击中挡板的位置（从-0.5到0.5）
+                    const hitPoint = (ball.y - (paddle.y + paddle.height / 2)) / (paddle.height / 2);
+
+                    // 计算反弹角度（基于击中位置）
+                    let angle = hitPoint * (Math.PI / 4);
+
+                    // 电脑回球增强功能
+                    if (aiEnhancementEnabled && paddleOwner === 'computer') {
+                        // 生成-75到75度的随机角度
+                        const randomAngle = (Math.random() - 0.5) * (120 * Math.PI / 180); // -60到60度转换为弧度
+                        angle = randomAngle;
+                    }
+
+                    // 确定方向
+                    const direction = ball.x < canvas.width / 2 ? 1 : -1;
+
+                    // 更新球的速度
+                    ball.velocityX = direction * ball.speed * Math.cos(angle);
+                    ball.velocityY = ball.speed * Math.sin(angle);
+
+                    // 增加球速
+                    ball.speed += 0.025;
+
+                    // 雷电板子效果
+                    if (paddle.glowEffect) {
+                        ball.speed *= 1.8; // 增加80%速度
+                        setTimeout(() => {
+                            ball.speed /= 1.8; // 0.8秒后恢复
+                        }, 800);
+                    }
+
+                    // 创建碰撞粒子
+                    createParticles(ball.x, ball.y, paddle.color);
+
+                    // 记录碰撞时间
+                    ball.lastCollision = currentTime;
+
+                    // 防止球卡在挡板内
+                    if (direction === 1) {
+                        ball.x = paddle.x + paddle.width + ball.radius + 1;
+                    } else {
+                        ball.x = paddle.x - ball.radius - 1;
+                    }
+                }
+            }
+
+            // 计分
+            if (!isResetting && (ball.x - ball.radius < 0 || ball.x + ball.radius > canvas.width)) {
+                isResetting = true;
+                let shouldScore = true;
+                let scoringPlayer = null;
+
+                if (ball.x - ball.radius < 0) {
+                    scoringPlayer = 'computer';
+                } else {
+                    scoringPlayer = 'player';
+                }
+
+                // 检查不死图腾效果
+                if (globalEffects.immortalTotem.active) {
+                    const triggeredBy = globalEffects.immortalTotem.triggeredBy;
+
+                    // 如果触发方失球，不计分但结束不死图腾效果
+                    if ((scoringPlayer === 'computer' && triggeredBy === 'player') ||
+                        (scoringPlayer === 'player' && triggeredBy === 'computer')) {
+                        shouldScore = false;
+
+                        // 结束不死图腾效果
+                        globalEffects.immortalTotem.active = false;
+                        globalEffects.immortalTotem.endTime = 0;
+                        globalEffects.immortalTotem.triggeredBy = null;
+
+                        // 结束触发方的RGB变色效果
+                        if (triggeredBy === 'player') {
+                            player.rgbEffect = false; // 使用rgbEffect
+                            player.rgbEndTime = 0;
+                        } else {
+                            computer.rgbEffect = false; // 使用rgbEffect
+                            computer.rgbEndTime = 0;
+                        }
+
+                        // 显示不死图腾触发通知
+                        const notification = document.createElement('div');
+                        notification.className = 'event-notification positive';
+                        notification.innerHTML = `
+                            <div class="event-trigger">不死图腾触发</div>
+                            <div class="event-title">是不死图腾碎裂的声音！</div>
+                            <div class="event-description">本次失球不计分，效果已结束</div>
+                        `;
+                        document.body.appendChild(notification);
+                        setTimeout(() => {
+                            notification.classList.add('show');
+                        }, 100);
+                        setTimeout(() => {
+                            notification.classList.remove('show');
+                            setTimeout(() => {
+                                if (notification.parentNode) {
+                                    notification.remove();
+                                }
+                            }, 500);
+                        }, 3000);
+                    }
+                }
+
+                // 正常计分
+                if (shouldScore) {
+                    if (scoringPlayer === 'computer') {
+                        computerScore++;
+                        computerScoreElement.textContent = computerScore;
+                        createScoreEffect(false); // 电脑得分特效
+                    } else {
+                        playerScore++;
+                        playerScoreElement.textContent = playerScore;
+                        createScoreEffect(true); // 玩家得分特效
+                    }
+                }
+
+                // 重置电脑速度倍数（进球后重置）
+                computer.speedMultiplier = 1.0;
+
+                // 创建得分粒子效果
+                createParticles(
+                    ball.x,
+                    ball.y,
+                    ball.x - ball.radius < 0 ? computer.color : player.color,
+                    30
+                );
+
+                // 延迟后重置球
+                setTimeout(() => {
+                    resetBall();
+                }, 1000);
+            }
+
+            // 检查胜利条件
+            if (!isGameOver && (playerScore >= 3 || computerScore >= 3)) {
+                isGameOver = true;
+                if (playerScore >= 3) {
+                    victoryMessage.textContent = `玩家获胜！`;
+                } else {
+                    // 获取当前选中的难度名称
+                    const activeOption = document.querySelector('.difficulty-option.active');
+                    const difficultyName = activeOption ? activeOption.textContent : '电脑';
+                    victoryMessage.textContent = `${difficultyName}获胜！`;
+                }
+                victoryOverlay.style.opacity = '1';
+                victoryOverlay.style.pointerEvents = 'auto';
+            }
+
+            // 更新调试信息
+            updateDebugInfo();
+        }
+
+        // 绘制游戏
+        function draw() {
+            // 半透明背景（创造拖尾效果）
+            ctx.fillStyle = 'rgba(8, 12, 33, 0.15)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 绘制网格背景
+            drawGrid();
+
+            // 绘制雷云效果
+            drawThunderCloud();
+
+            // 绘制障碍物
+            drawObstacles();
+
+            // 绘制事件
+            drawEvents();
+
+            // 绘制球轨迹
+            drawBallTrail();
+
+            // 绘制粒子
+            drawParticles();
+
+            // 绘制中间虚线
+            ctx.beginPath();
+            ctx.setLineDash([10, 15]);
+            ctx.moveTo(canvas.width / 2, 0);
+            ctx.lineTo(canvas.width / 2, canvas.height);
+            ctx.strokeStyle = 'rgba(101, 80, 255, 0.4)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 绘制挡板
+            drawPaddle(player.x, player.y, player.width, player.height, player.color, player.glowEffect, player.rgbEffect);
+            drawPaddle(computer.x, computer.y, computer.width, computer.height, computer.color, computer.glowEffect, computer.rgbEffect);
+
+
+            // 绘制球
+            drawCircle(ball.x, ball.y, ball.radius, ball.color, ball.alpha);
+
+            // 绘制球内部光点
+            ctx.save();
+            ctx.globalAlpha = ball.alpha;
+            ctx.beginPath();
+            ctx.arc(ball.x - 3, ball.y - 3, 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+            ctx.closePath();
+            ctx.restore();
+        }
+
+        // 更新调试信息
+        function updateDebugInfo() {
+            // 球状态
+            document.getElementById('debug-ball-speed').textContent = ball.speed.toFixed(2);
+            document.getElementById('debug-ball-position').textContent = `${Math.round(ball.x)},${Math.round(ball.y)}`;
+            document.getElementById('debug-ball-alpha').textContent = ball.alpha.toFixed(2);
+
+            // 电脑数据
+            document.getElementById('debug-computer-speed').textContent = computer.speed.toFixed(2);
+            document.getElementById('debug-computer-position').textContent = Math.round(computer.y);
+            document.getElementById('debug-computer-multiplier').textContent = computer.speedMultiplier.toFixed(2);
+
+            // 事件状态
+            let activeEvents = 0;
+            if (globalEffects.speedVariation.active) activeEvents++;
+            if (globalEffects.obstacleSpeedUp.active) activeEvents++;
+            if (globalEffects.thunderCloud.active) activeEvents++;
+            if (player.glowEffect) activeEvents++;
+            if (computer.speedMultiplier !== 1.0) activeEvents++;
+            
+            document.getElementById('debug-active-events').textContent = activeEvents;
+            document.getElementById('debug-obstacles').textContent = obstacles.length;
+
+            // 系统信息
+            const currentFps = Math.round(1000 / (deltaTime || 16.67));
+            document.getElementById('debug-fps').textContent = currentFps;
+            document.getElementById('debug-game-time').textContent = `${Math.round(gameTime / 1000)}s`;
+        }
+
+        // 游戏循环
+        function gameLoop(timestamp) {
+            // 计算时间差
+            if (lastTime === 0) lastTime = timestamp;
+            deltaTime = timestamp - lastTime;
+            lastTime = timestamp;
+            accumulatedTime += deltaTime;
+            // 更新FPS计数
+            frameCount++;
+            if (timestamp - lastFpsUpdate >= 1000) {
+                const fps = Math.round(frameCount * 1000 / (timestamp - lastFpsUpdate));
+                console.log(`FPS: ${fps}`);
+                frameCount = 0;
+                lastFpsUpdate = timestamp;
+            }
+            // 执行固定次数的更新（时间补偿）
+            while (accumulatedTime >= FRAME_INTERVAL) {
+                update(FRAME_INTERVAL);
+                accumulatedTime -= FRAME_INTERVAL;
+            }
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // 启动游戏
+        lastTime = 0;
+        accumulatedTime = 0;
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>
