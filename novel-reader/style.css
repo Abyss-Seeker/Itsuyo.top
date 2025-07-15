@@ -1,0 +1,444 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+    background: #f7f7f7;
+    color: #222;
+}
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2vw;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+header h1 {
+    font-size: 1.5rem;
+    margin: 0;
+}
+header button {
+    margin-left: 1rem;
+    padding: 0.5em 1.2em;
+    border: none;
+    background: #4e8cff;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s;
+}
+header button:hover {
+    background: #2563c9;
+}
+main {
+    display: flex;
+    min-height: 80vh;
+    max-width: 1200px;
+    margin: 2rem auto 0 auto;
+    gap: 2vw;
+}
+.home-link {
+    position: fixed;
+    left: 16px;
+    bottom: 16px;
+    top: auto;
+    right: auto;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: white;
+    font-size: 15px;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    background: rgba(138, 43, 226, 0.8);
+    padding: 7px 13px;
+    border-radius: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    font-weight: 500;
+    max-width: 90vw;
+    min-width: 0;
+    pointer-events: auto;
+    white-space: nowrap;
+}
+
+.home-link img {
+    width: 22px;
+    height: 22px;
+    margin-right: 7px;
+}
+
+.home-link:hover {
+    background: rgba(106, 28, 185, 0.9);
+    transform: translateY(-2px) scale(0.98);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* 调整容器位置，避免按钮遮挡 */
+.container {
+    padding-top: 70px; /* 新增顶部间距 */
+}
+
+#chapter-menu {
+    min-width: 200px;
+    max-width: 260px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 1.2rem 0.7rem;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 0.2rem;
+    align-content: flex-start;
+    height: 100vh;
+    max-height: 100vh;
+    overflow-y: auto;
+    border: 1px solid #e3eaf2;
+    position: sticky;
+    top: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 0.2rem;
+}
+#chapter-menu button {
+    display: block;
+    width: 100%;
+    min-height: 2.2em;
+    margin: 0.1em 0;
+    box-sizing: border-box;
+    text-align: left;
+    font-size: 1em;
+    transition: font-size 0.2s, background 0.2s, color 0.2s, border 0.2s;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    background: linear-gradient(90deg, #eaf1ff 60%, #f7faff 100%);
+    color: #2563c9;
+    border: 1px solid #c3d6f7;
+    border-radius: 6px;
+    font-weight: 500;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    cursor: pointer;
+    padding: 0.6em 0.8em;
+}
+#chapter-menu button[data-len='short'] { font-size: 1.08em; }
+#chapter-menu button[data-len='medium'] { font-size: 0.98em; }
+#chapter-menu button[data-len='long'] { font-size: 0.88em; }
+#chapter-menu button[data-len='xlong'] { font-size: 0.78em; }
+#chapter-menu button.active, #chapter-menu button:hover {
+    background: linear-gradient(90deg, #4e8cff 60%, #2563c9 100%);
+    color: #fff;
+    border: 1px solid #4e8cff;
+}
+#chapter-menu button.bookmarked {
+    background: linear-gradient(90deg, #ffe9b3 60%, #fff7e0 100%);
+    color: #b97a00;
+    border: 1px solid #ffd36b;
+    font-weight: bold;
+}
+#chapter-menu button.bookmarked.active, #chapter-menu button.bookmarked:hover {
+    background: linear-gradient(90deg, #ffb300 60%, #ff9800 100%);
+    color: #fff;
+    border: 1px solid #ffb300;
+}
+#reader-section {
+    flex: 1 1 0;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 60vh;
+    transition: background 0.2s;
+}
+.dark-mode #reader-section,
+.dark-mode #chapter-content {
+    background: #23272e !important;
+    color: #e0e0e0;
+}
+#loading {
+    font-size: 1.2rem;
+    color: #4e8cff;
+    text-align: center;
+    margin: 2rem 0;
+}
+#chapter-title {
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #2563c9;
+    letter-spacing: 0.05em;
+    text-shadow: 0 2px 8px rgba(78,140,255,0.08);
+}
+#chapter-content {
+    font-size: 1.15rem;
+    line-height: 2.2;
+    margin-bottom: 2rem;
+    word-break: break-all;
+    min-height: 40vh;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 1.2em 0.5em 1.2em 0.5em;
+    background: #f7faff;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(78,140,255,0.04);
+    border: 1px solid #e3eaf2;
+    transition: background 0.2s;
+}
+#reader-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+#reader-controls button {
+    padding: 0.6em 1.3em;
+    border: none;
+    background: linear-gradient(90deg, #eaf1ff 60%, #f7faff 100%);
+    color: #2563c9;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.05rem;
+    font-weight: 500;
+    border: 1px solid #c3d6f7;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    transition: background 0.2s, color 0.2s, border 0.2s;
+}
+#reader-controls button:hover, #reader-controls button.active {
+    background: linear-gradient(90deg, #4e8cff 60%, #2563c9 100%);
+    color: #fff;
+    border: 1px solid #4e8cff;
+}
+#settings-modal {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    padding: 2rem 2.5rem;
+    z-index: 100;
+    min-width: 260px;
+}
+#settings-modal label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    gap: 0.5em;
+}
+#settings-modal input[type="text"] {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-right: 0.5em;
+}
+#settings-modal input[type="checkbox"] {
+    margin-left: 0.2em;
+    margin-right: 0.2em;
+    width: 1.1em;
+    height: 1.1em;
+}
+#settings-modal input {
+    width: 100%;
+    padding: 0.5em;
+    font-size: 1rem;
+    margin-top: 0.5em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+#settings-modal button {
+    margin-right: 1rem;
+    padding: 0.5em 1.2em;
+    border: none;
+    background: #4e8cff;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s;
+}
+#settings-modal button:last-child {
+    margin-right: 0;
+    background: #aaa;
+}
+@media (max-width: 1200px) {
+    #chapter-menu {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+@media (max-width: 900px) {
+    main {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .home-link {
+        font-size: 13px;
+        padding: 5px 10px;
+        left: 8px;
+        bottom: 8px;
+        max-width: 95vw;
+    }
+
+    .home-link img {
+        width: 18px;
+        height: 18px;
+    }
+
+    .container {
+        padding-top: 60px; /* 移动端减少间距 */
+    }
+    #chapter-menu {
+        min-width: 0;
+        max-width: 100vw;
+        width: 100%;
+        height: 30vh;
+        max-height: 30vh;
+        position: static;
+        padding: 0.7rem 0.2rem;
+    }
+    #reader-section {
+        padding: 1.2rem 0.5rem 1rem 0.5rem;
+    }
+    #chapter-title {
+        font-size: 1.15rem;
+    }
+    #chapter-content {
+        font-size: 1.02rem;
+        max-height: 50vh;
+        padding: 0.7em 0.2em 0.7em 0.2em;
+    }
+    #reader-controls button {
+        font-size: 0.98rem;
+        padding: 0.5em 0.8em;
+    }
+}
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.7rem 2vw;
+    }
+    main {
+        margin: 0.5rem;
+    }
+    #chapter-title {
+        font-size: 1rem;
+    }
+    #chapter-content {
+        font-size: 0.95rem;
+        max-height: 38vh;
+        padding: 0.5em 0.1em 0.5em 0.1em;
+    }
+    #chapter-menu button {
+        font-size: 0.92em;
+        min-width: 54px;
+        max-width: 80px;
+        padding: 0.4em 0.3em;
+    }
+    #settings-modal {
+        padding: 0.7rem 0.2rem;
+        min-width: 120px;
+        font-size: 0.95rem;
+    }
+    #reader-controls {
+        gap: 0.5rem;
+    }
+    #reader-controls button {
+        font-size: 0.92rem;
+        padding: 0.4em 0.7em;
+    }
+    #chapter-menu {
+        grid-template-columns: repeat(1, 1fr);
+        height: 22vh;
+        max-height: 22vh;
+        position: static;
+        padding: 0.5rem 0.1rem;
+    }
+    .home-link {
+        font-size: 11px;
+        padding: 3px 7px;
+        left: 4px;
+        bottom: 4px;
+        max-width: 98vw;
+    }
+    .home-link img {
+        width: 15px;
+        height: 15px;
+    }
+}
+@media (max-width: 400px) {
+    .home-link {
+        padding: 2px 2px;
+        font-size: 0;
+        left: 2px;
+        bottom: 2px;
+    }
+    .home-link img {
+        width: 18px;
+        height: 18px;
+        margin-right: 0;
+    }
+    .home-link span {
+        display: none;
+    }
+}
+.dark-mode {
+    background: #23272e;
+    color: #e0e0e0;
+}
+.dark-mode #reader-section,
+.dark-mode #chapter-menu,
+.dark-mode #settings-modal {
+    background: #2d323b;
+    color: #e0e0e0;
+}
+.dark-mode header {
+    background: #23272e;
+    color: #e0e0e0;
+}
+.dark-mode #chapter-menu button {
+    background: #3a4252;
+    color: #b3c7ff;
+}
+.dark-mode #chapter-menu button.active, .dark-mode #chapter-menu button:hover {
+    background: #4e8cff;
+    color: #fff;
+}
+.dark-mode #reader-controls button {
+    background: #3a4252;
+    color: #b3c7ff;
+}
+.dark-mode #reader-controls button.active, .dark-mode #reader-controls button:hover {
+    background: #4e8cff;
+    color: #fff;
+}
+/* 拖拽分栏样式 */
+#container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+#chapter-menu {
+    resize: horizontal;
+    overflow: auto;
+    min-width: 120px;
+    max-width: 50vw;
+}
+#dragbar {
+    width: 6px;
+    cursor: ew-resize;
+    background: #e3eaf2;
+    transition: background 0.2s;
+    z-index: 20;
+}
+#dragbar:hover {
+    background: #4e8cff;
+} 

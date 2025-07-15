@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novel Reader</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <a href="https://itsuyo.top" class="home-link" class='item-img' data-src='https://itsuyo.top/favicon.ico'><img src="https://itsuyo.top/favicon.ico" alt="主站图标">
+        <span>返回主站</span>
+    </a>
+    <header>
+        <h1>Novel Reader</h1>
+        <button id="import-btn">导入TXT</button>
+        <input type="file" id="file-input" accept=".txt" style="display:none">
+        <button id="settings-btn">设置</button>
+    </header>
+    <main>
+        <div id="container">
+            <aside id="chapter-menu">
+                <!-- 章节目录按钮将动态插入 -->
+            </aside>
+            <div id="dragbar"></div>
+            <section id="reader-section">
+                <div id="loading" style="display:none">正在加载，请稍候...</div>
+                <div id="chapter-title"></div>
+                <div id="chapter-content"></div>
+                <div id="reader-controls">
+                    <button id="prev-chapter">上一章</button>
+                    <button id="next-chapter">下一章</button>
+                    <button id="bookmark-btn">书签</button>
+                    <button id="color-toggle">切换颜色</button>
+                    <button id="font-size-dec">A-</button>
+                    <button id="font-size-inc">A+</button>
+                </div>
+            </section>
+        </div>
+    </main>
+    <div id="settings-modal" style="display:none">
+        <label>章节分割（默认: 空行）
+            <input id="split-pattern" type="text" value="\n\n">
+            <input id="split-regex" type="checkbox">正则
+        </label>
+        <label>章节名提取（默认: 第一行）
+            <input id="title-pattern" type="text" value="^.*$">
+            <input id="title-regex" type="checkbox">正则
+        </label>
+        <button id="save-settings">保存</button>
+        <button id="close-settings">关闭</button>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html> 
