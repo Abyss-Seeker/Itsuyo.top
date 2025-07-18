@@ -15,12 +15,14 @@
         <button id="import-btn">导入TXT</button>
         <input type="file" id="file-input" accept=".txt" style="display:none">
         <button id="settings-btn">设置</button>
+        <button id="show-menu-btn" style="display:none">目录</button>
     </header>
     <main>
         <div id="container">
-            <aside id="chapter-menu">
+            <aside id="chapter-menu" class="hidden-on-mobile">
                 <!-- 章节目录按钮将动态插入 -->
             </aside>
+            <div id="menu-mask" style="display:none"></div>
             <div id="dragbar"></div>
             <section id="reader-section">
                 <div id="loading" style="display:none">正在加载，请稍候...</div>

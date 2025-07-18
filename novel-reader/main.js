@@ -2,7 +2,8 @@
 let chapters = [];
 let currentChapter = 0;
 let splitPattern = /\n\n/;
-let bookmarks = [];
+let bookmarksMap = {}; // 新增：以文件名为key的书签映射
+let currentFileName = '';
 let settings = {
     splitPattern: '\n\n',
     fontSize: 1.1,
@@ -31,6 +32,8 @@ const closeSettingsBtn = document.getElementById('close-settings');
 const titlePatternInput = document.getElementById('title-pattern');
 const titleRegexInput = document.getElementById('title-regex');
 const splitRegexInput = document.getElementById('split-regex');
+const showMenuBtn = document.getElementById('show-menu-btn');
+const menuMask = document.getElementById('menu-mask');
 
 // 事件绑定
 importBtn.onclick = () => fileInput.click();
@@ -40,7 +43,13 @@ closeSettingsBtn.onclick = () => { settingsModal.style.display = 'none'; };
 saveSettingsBtn.onclick = saveSettings;
 prevBtn.onclick = () => jumpToChapter(currentChapter - 1);
 nextBtn.onclick = () => jumpToChapter(currentChapter + 1);
-colorToggle.onclick = toggleDarkMode;
+function updateColorToggleText() {
+    colorToggle.textContent = document.body.classList.contains('dark-mode') ? '亮灯' : '关灯';
+}
+colorToggle.onclick = function() {
+    toggleDarkMode();
+    updateColorToggleText();
+};
 fontSizeDec.onclick = () => changeFontSize(-0.1);
 fontSizeInc.onclick = () => changeFontSize(0.1);
 bookmarkBtn.onclick = toggleBookmark;
@@ -54,12 +63,15 @@ window.onload = function() {
     splitRegexInput.checked = !!settings.splitRegex;
     titlePatternInput.value = settings.titlePattern || '^.*$';
     titleRegexInput.checked = !!settings.titleRegex;
+    updateColorToggleText();
 };
 
 function handleFileImport(e) {
     const file = e.target.files[0];
     if (!file) return;
     loadingDiv.style.display = 'block';
+    currentFileName = file.name; // 记录当前文件名
+    localStorage.setItem('novel_reader_last_file', currentFileName); // 记住上次打开的文件名
     localStorage.removeItem('novel_reader_cache');
     const reader = new FileReader();
     reader.onload = function(evt) {
@@ -95,6 +107,8 @@ function splitChapters(text) {
 
 function renderChapterMenu() {
     chapterMenu.innerHTML = '';
+    // 获取当前文件的书签
+    let bookmarks = bookmarksMap[currentFileName] || [];
     chapters.forEach((chapter, idx) => {
         // 章节名提取
         let title = '';
@@ -145,10 +159,43 @@ document.addEventListener('mouseup', function(e) {
     }
 });
 
+// 目录弹出/隐藏逻辑
+function openMenu() {
+    document.body.classList.add('mobile-menu-active');
+    menuMask.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+function closeMenu() {
+    document.body.classList.remove('mobile-menu-active');
+    menuMask.style.display = 'none';
+    document.body.style.overflow = '';
+}
+showMenuBtn.onclick = openMenu;
+// 覆盖menuMask点击逻辑，仅移动端下点击遮罩收回目录
+menuMask.onclick = function(e) {
+    if (window.innerWidth <= 600 || window.innerHeight > window.innerWidth) {
+        closeMenu();
+    }
+};
+// 目录栏内点击目录后自动关闭（移动端）
+chapterMenu.addEventListener('click', function(e) {
+    if (window.innerWidth <= 900 || window.innerWidth > window.innerWidth) {
+        closeMenu();
+    }
+});
+// 屏幕变化时自动隐藏目录栏
+window.addEventListener('resize', function() {
+    if (window.innerWidth > 900 && window.innerWidth > window.innerHeight) {
+        closeMenu();
+    }
+});
+
 function jumpToChapter(idx) {
     if (idx < 0 || idx >= chapters.length) return;
     currentChapter = idx;
     const btns = document.querySelectorAll('#chapter-menu button');
+    // 获取当前文件的书签
+    let bookmarks = bookmarksMap[currentFileName] || [];
     btns.forEach((btn, i) => {
         btn.classList.toggle('active', i === idx);
         btn.classList.toggle('bookmarked', bookmarks.includes(i));
@@ -171,13 +218,14 @@ function jumpToChapter(idx) {
 }
 
 function toggleBookmark() {
+    if (!currentFileName) return;
+    let bookmarks = bookmarksMap[currentFileName] || [];
     if (!bookmarks.includes(currentChapter)) {
         bookmarks.push(currentChapter);
-        bookmarkBtn.classList.add('active');
     } else {
         bookmarks = bookmarks.filter(b => b !== currentChapter);
-        bookmarkBtn.classList.remove('active');
     }
+    bookmarksMap[currentFileName] = bookmarks;
     renderChapterMenu(); // 立即刷新目录高亮
     saveCache();
 }
@@ -207,6 +255,7 @@ function applySettings() {
         document.getElementById('reader-section').style.background = '';
     }
     chapterContent.style.fontSize = settings.fontSize + 'rem';
+    updateColorToggleText();
 }
 
 function saveSettings() {
@@ -225,10 +274,12 @@ function saveSettings() {
 }
 
 function saveCache() {
+    // 保存所有文件的书签
     localStorage.setItem('novel_reader_cache', JSON.stringify({
         currentChapter,
-        bookmarks,
-        settings
+        bookmarksMap,
+        settings,
+        currentFileName
     }));
 }
 
@@ -238,8 +289,9 @@ function loadCache() {
     try {
         const data = JSON.parse(cache);
         currentChapter = data.currentChapter || 0;
-        bookmarks = data.bookmarks || [];
+        bookmarksMap = data.bookmarksMap || {};
         settings = Object.assign(settings, data.settings || {});
+        currentFileName = data.currentFileName || '';
         splitPatternInput.value = settings.splitPattern || '\n\n';
     } catch {}
 } 

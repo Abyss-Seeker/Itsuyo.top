@@ -441,4 +441,376 @@ main {
 }
 #dragbar:hover {
     background: #4e8cff;
+}
+
+/* 目录弹出遮罩层 */
+#menu-mask {
+    position: fixed;
+    left: 0; top: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.18);
+    z-index: 99;
+    display: none;
+}
+
+/* 目录弹窗样式 */
+.mobile-menu-active #chapter-menu {
+    display: block !important;
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 70vw; max-width: 340px; min-width: 120px;
+    z-index: 100;
+    box-shadow: 2px 0 16px rgba(0,0,0,0.12);
+    background: #fff;
+    border-radius: 0 8px 8px 0;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow-y: auto;
+    padding: 1.2rem 0.7rem;
+}
+.mobile-menu-active #menu-mask {
+    display: block !important;
+}
+
+/* 隐藏目录栏的class */
+.hidden-on-mobile {
+    display: block;
+}
+@media (max-width: 900px), (max-aspect-ratio: 1/1) {
+    #chapter-menu.hidden-on-mobile {
+        display: none !important;
+    }
+    #show-menu-btn {
+        display: inline-block !important;
+    }
+}
+@media (max-width: 900px), (max-aspect-ratio: 1/1) {
+    .mobile-menu-active #chapter-menu {
+        display: block !important;
+    }
+}
+
+/* 优化按钮区，极小屏幕下横向滚动且不换行 */
+#reader-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1.2rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+#reader-controls button {
+    white-space: nowrap;
+    min-width: 70px;
+}
+@media (max-width: 600px) {
+    #reader-controls {
+        gap: 0.5rem;
+        font-size: 0.92rem;
+        padding-bottom: 2px;
+    }
+    #reader-controls button {
+        font-size: 0.92rem;
+        min-width: 54px;
+        padding: 0.4em 0.7em;
+    }
+}
+
+/* 目录栏与阅读区高度对齐（flex布局） */
+#container {
+    align-items: stretch;
+}
+#chapter-menu {
+    height: auto;
+    max-height: none;
+}
+@media (min-width: 901px) {
+    #container {
+        min-height: 60vh;
+        height: 100%;
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
+    #chapter-menu {
+        height: auto;
+        max-height: none;
+        align-self: stretch;
+        max-width: 50vw;
+        min-width: 120px;
+        width: auto;
+    }
+    #reader-section {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        min-width: 0;
+        flex: 1 1 0;
+        width: 0;
+    }
+} 
+
+/* dragbar 层级调低，且只在目录可见时显示 */
+#dragbar {
+    width: 6px;
+    cursor: ew-resize;
+    background: #e3eaf2;
+    transition: background 0.2s;
+    z-index: 2; /* 明显低于header */
+    display: block;
+    height: 100%;
+}
+@media (max-width: 900px), (max-aspect-ratio: 1/1) {
+    #dragbar {
+        display: none !important;
+    }
+}
+.mobile-menu-active #dragbar {
+    display: none !important;
+}
+
+/* container高度自适应，始终fit屏幕 */
+#container {
+    display: flex;
+    width: 100vw;
+    height: calc(100vh - 64px); /* header约64px */
+    min-height: 0;
+    align-items: stretch;
+    box-sizing: border-box;
+}
+@media (max-width: 600px) {
+    #container {
+        height: calc(100vh - 48px);
+    }
+}
+
+/* 目录栏高度自适应且可滚动 */
+#chapter-menu {
+    min-width: 120px;
+    max-width: 50vw;
+    height: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+    align-self: stretch;
+}
+.mobile-menu-active #chapter-menu {
+    height: 100vh !important;
+    max-height: 100vh !important;
+}
+
+/* 阅读区和按钮区自适应高度 */
+#reader-section {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    box-sizing: border-box;
+}
+#chapter-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+}
+#reader-controls {
+    flex-shrink: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    justify-content: center;
+    gap: 1.2rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 2px;
+    min-width: 0;
+}
+#reader-controls button {
+    white-space: nowrap;
+    min-width: 70px;
+    font-size: 1.05rem;
+    transition: font-size 0.2s, transform 0.2s;
+}
+@media (max-width: 900px) {
+    #reader-controls button {
+        font-size: 0.92rem;
+        min-width: 54px;
+        padding: 0.4em 0.7em;
+    }
+    #reader-controls {
+        gap: 0.5rem;
+    }
+}
+@media (max-width: 600px) {
+    #reader-controls button {
+        font-size: 0.85rem;
+        min-width: 44px;
+        padding: 0.3em 0.5em;
+        transform: scale(0.95);
+    }
+    #reader-controls {
+        gap: 0.3rem;
+    }
+}
+@media (max-width: 400px) {
+    #reader-controls button {
+        font-size: 0.7rem;
+        min-width: 36px;
+        padding: 0.2em 0.3em;
+        transform: scale(0.85);
+    }
+} 
+
+@media (max-width: 600px), (max-aspect-ratio: 1/1) {
+    header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.2rem;
+        padding: 0.4rem 1vw;
+        height: 38px;
+        min-height: 0;
+    }
+    header h1 {
+        font-size: 1.02rem;
+        margin: 0 0.2em 0 0;
+        flex: 1 1 auto;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    header button, #show-menu-btn {
+        font-size: 0.82rem !important;
+        padding: 0.25em 0.7em !important;
+        min-width: 0 !important;
+        margin-left: 0.1em;
+        margin-right: 0.1em;
+        height: 28px;
+        line-height: 1.1;
+        flex: 0 1 auto;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+    #show-menu-btn {
+        display: inline-block !important;
+    }
+    main {
+        margin: 0;
+        padding: 0;
+    }
+    #container {
+        height: calc(100vh - 38px);
+        min-height: 0;
+        width: 100vw;
+        box-sizing: border-box;
+    }
+    .mobile-menu-active #chapter-menu {
+        width: 50vw !important;
+        min-width: 120px;
+        max-width: 100vw;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        left: 0;
+        top: 0;
+        border-radius: 0 8px 8px 0;
+        padding: 0.7rem 0.2rem;
+    }
+    #chapter-menu {
+        padding: 0.7rem 0.2rem;
+        min-width: 0;
+        max-width: 100vw;
+        width: 100%;
+        height: 100%;
+        max-height: 100%;
+        position: static;
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 0.2rem;
+        align-content: flex-start;
+        overflow-y: auto;
+    }
+    #chapter-menu button {
+        font-size: 0.92em;
+        min-width: 0;
+        max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0.4em 0.3em;
+        margin: 0.1em 0;
+        border-radius: 4px;
+        text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    #reader-section {
+        padding: 0.7rem 0.2rem 0.5rem 0.2rem;
+        min-width: 0;
+        min-height: 0;
+        height: 100%;
+        box-sizing: border-box;
+    }
+    #chapter-title {
+        font-size: 1rem;
+    }
+    #chapter-content {
+        font-size: 0.95rem;
+        max-height: none;
+        min-height: 0;
+        padding: 0.5em 0.1em 0.5em 0.1em;
+    }
+    #reader-controls {
+        gap: 0.2rem;
+        font-size: 0.82rem;
+        padding-bottom: 2px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        min-width: 0;
+    }
+    #reader-controls button {
+        font-size: 0.82rem;
+        min-width: 36px;
+        padding: 0.2em 0.3em;
+        transform: scale(0.85);
+    }
+} 
+
+@media (min-width: 901px) {
+    #reader-controls {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: center;
+        align-items: center;
+        gap: 0;
+        width: 100%;
+        font-size: 1.05rem;
+        padding: 0;
+        margin: 0;
+        /* 超窄时整体缩放 */
+        transition: transform 0.2s;
+    }
+    #reader-controls button {
+        flex: 1 1 0;
+        width: 16.66%;
+        min-width: 0;
+        max-width: 100%;
+        font-size: 1.05vw;
+        padding: 0.4em 0.2em;
+        margin: 0;
+        box-sizing: border-box;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: font-size 0.2s, padding 0.2s;
+    }
+    /* 超窄时整体scale缩小，防止溢出 */
+    #reader-section[style*="width: 300px"] ~ #reader-controls,
+    #reader-section[style*="width: 250px"] ~ #reader-controls {
+        transform: scale(0.85);
+    }
+    #reader-section[style*="width: 200px"] ~ #reader-controls {
+        transform: scale(0.7);
+    }
 } 
